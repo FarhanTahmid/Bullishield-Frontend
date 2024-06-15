@@ -1,101 +1,125 @@
-// import 'package:bullishield/backend.dart';
+import 'dart:convert';
+
+import 'package:bullishield/backend_config.dart';
 import 'package:flutter/material.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 // import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
-// import '../../Login/login_screen.dart';
-// import 'package:http/http.dart' as http;
+import '../../Login/login_screen.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   @override
   State<SignUpForm> createState() => SignupFormState();
 }
 
 class SignupFormState extends State<SignUpForm> {
   // Defining Controllers
-  final user_id_controller = TextEditingController();
-  final email_controller = TextEditingController();
-  final password_controller = TextEditingController();
-  final confirm_password_controller = TextEditingController();
+  final userIdController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   void signup() async {
-  //   var response;
-  //   Backend backend = Backend();
-  //   String backendMeta = backend.backendMeta;
-  //   // first check if two password matches
-  //   if (password_controller.text.trim() ==
-  //       confirm_password_controller.text.trim()) {
-  //     var signup_url = "$backendMeta/apis/signup/";
-  //     // Posting response to backend server
-  //     try {
-  //       response = await http.post(Uri.parse(signup_url), body: {
-  //         'username': user_id_controller.text.trim(),
-  //         'password': password_controller.text.trim(),
-  //         'email': email_controller.text.trim()
-  //       });
-  //     } catch (e) {
-  //       Fluttertoast.showToast(
-  //         msg: "Please check your network connection and Try again!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.grey[700],
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-  //     }
-  //   } else {
-  //     Fluttertoast.showToast(
-  //       msg: "Two passwords did not match",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       timeInSecForIosWeb: 1,
-  //       backgroundColor: Colors.grey[700],
-  //       textColor: Colors.red,
-  //       fontSize: 16.0,
-  //     );
-  //   }
+    // get backend information
+    BackendConfiguration backend = BackendConfiguration();
+    String backendApiURL = backend.getBackendApiURL();
 
-  //   // Have to show Toast here
-  //   if ((response.statusCode) == 400) {
-  //     Fluttertoast.showToast(
-  //       msg: "This username already exists! Try logging in",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       timeInSecForIosWeb: 1,
-  //       backgroundColor: Colors.grey[700],
-  //       textColor: Colors.red,
-  //       fontSize: 16.0,
-  //     );
-  //   } else if ((response.statusCode) == 201) {
-  //     Fluttertoast.showToast(
-  //       msg: "Signed up successfully",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       timeInSecForIosWeb: 1,
-  //       backgroundColor: Colors.grey[700],
-  //       textColor: Colors.red,
-  //       fontSize: 16.0,
-  //     );
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => LoginScreen()),
-  //     );
-  //   } else if ((response.statusCode) == 205) {
-  //     Fluttertoast.showToast(
-  //       msg:
-  //           "This username does not exist in our database. Please contact your organization administration",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       timeInSecForIosWeb: 1,
-  //       backgroundColor: Colors.grey[700],
-  //       textColor: Colors.red,
-  //       fontSize: 16.0,
-  //     );
-  //   }
+    // declare response variable
+    http.Response response;
+
+    // first check if two password matches
+    if (passwordController.text.trim() ==
+        confirmPasswordController.text.trim()) {
+      // declare backend URL for signup
+      var signupUrl = "$backendApiURL/user/signup/";
+      // Posting response to backend server
+      try {
+        response = await http.post(Uri.parse(signupUrl), body: {
+          'username': userIdController.text.trim(),
+          'password': passwordController.text.trim(),
+          'email': emailController.text.trim()
+        });
+
+        // Chech status of the responses
+        // if the status is 400, bad request
+        if ((response.statusCode) == 400) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg: responseData['error'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        }
+        // if the 
+        else if ((response.statusCode) == 201) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg: responseData['success'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: const Color.fromARGB(255, 54, 244, 187),
+            fontSize: 16.0,
+          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const LoginScreen()),
+          // );
+        } else if ((response.statusCode) == 406) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg:responseData['error'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        }
+        else if((response.statusCode) == 401){
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg:responseData['error'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        }
+      } catch (e) {
+        Fluttertoast.showToast(
+          msg: "Please check your network connection and Try again!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[700],
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: "Two passwords did not match",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey[700],
+        textColor: Colors.red,
+        fontSize: 16.0,
+      );
+    }
   }
 
   @override
@@ -104,7 +128,7 @@ class SignupFormState extends State<SignUpForm> {
       child: Column(
         children: [
           TextFormField(
-            controller: user_id_controller,
+            controller: userIdController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
@@ -119,7 +143,7 @@ class SignupFormState extends State<SignUpForm> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
-              controller: email_controller,
+              controller: emailController,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               cursorColor: kPrimaryColor,
@@ -127,7 +151,7 @@ class SignupFormState extends State<SignUpForm> {
               decoration: const InputDecoration(
                 hintText: "Your email",
                 prefixIcon: Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
+                  padding: EdgeInsets.all(defaultPadding),
                   child: Icon(Icons.email),
                 ),
               ),
@@ -135,7 +159,7 @@ class SignupFormState extends State<SignUpForm> {
           ),
           TextFormField(
             textInputAction: TextInputAction.done,
-            controller: password_controller,
+            controller: passwordController,
             obscureText: true,
             cursorColor: kPrimaryColor,
             decoration: const InputDecoration(
@@ -149,7 +173,7 @@ class SignupFormState extends State<SignUpForm> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
-              controller: confirm_password_controller,
+              controller: confirmPasswordController,
               textInputAction: TextInputAction.done,
               obscureText: true,
               cursorColor: kPrimaryColor,
