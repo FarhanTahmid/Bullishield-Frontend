@@ -6,11 +6,11 @@ import 'components/login_signup_btn.dart';
 import 'components/welcome_image.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Background(
+    return const Background(
       child: SingleChildScrollView(
         child: SafeArea(
           child: Responsive(
@@ -23,7 +23,7 @@ class WelcomeScreen extends StatelessWidget {
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children:[
                       SizedBox(
                         width: 450,
                         child: LoginAndSignupBtn(),
@@ -33,7 +33,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            mobile: const MobileWelcomeScreen(),
+            mobile: MobileWelcomeScreen(),
           ),
         ),
       ),
@@ -42,18 +42,16 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 class MobileWelcomeScreen extends StatelessWidget {
-  const MobileWelcomeScreen({
-    Key? key,
-  }) : super(key: key);
+  const MobileWelcomeScreen({super.key,});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const WelcomeImage(),
+        WelcomeImage(),
         Row(
-          children: const [
+          children:[
             Spacer(),
             Expanded(
               flex: 8,

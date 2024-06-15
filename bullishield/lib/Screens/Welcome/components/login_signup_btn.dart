@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 // import '../../Login/login_screen.dart';
-// import '../../Signup/signup_screen.dart';
+import '../../Signup/signup_screen.dart';
 
 class LoginAndSignupBtn extends StatelessWidget {
-  const LoginAndSignupBtn({
-    Key? key,
-  }) : super(key: key);
+  const LoginAndSignupBtn({super.key,});
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +39,7 @@ class LoginAndSignupBtn extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) {
                   // return SignUpScreen();
-                  return const WelcomeScreen();
-
+                  return const SignUpScreen();
                 },
               ),
             );
