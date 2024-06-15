@@ -1,8 +1,7 @@
-import 'package:bullishield/Screens/Welcome/welcome_Screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
-// import '../../Login/login_screen.dart';
+import '../../Login/login_screen.dart';
 import '../../Signup/signup_screen.dart';
 
 class LoginAndSignupBtn extends StatelessWidget {
@@ -20,8 +19,7 @@ class LoginAndSignupBtn extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    // return LoginScreen();
-                    return const WelcomeScreen();
+                    return const LoginScreen();
                   },
                 ),
               );
@@ -38,7 +36,6 @@ class LoginAndSignupBtn extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  // return SignUpScreen();
                   return const SignUpScreen();
                 },
               ),
