@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:bullishield/backend_config.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -23,7 +22,32 @@ class SignupFormState extends State<SignUpForm> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Loading..."),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void signup() async {
+    // Show loading dialog
+    _showLoadingDialog(context);
+
     // get backend information
     BackendConfiguration backend = BackendConfiguration();
     String backendApiURL = backend.getBackendApiURL();
@@ -32,8 +56,7 @@ class SignupFormState extends State<SignUpForm> {
     http.Response response;
 
     // first check if two password matches
-    if (passwordController.text.trim() ==
-        confirmPasswordController.text.trim()) {
+    if (passwordController.text.trim() == confirmPasswordController.text.trim()) {
       // declare backend URL for signup
       var signupUrl = "$backendApiURL/user/signup/";
       // Posting response to backend server
@@ -44,9 +67,46 @@ class SignupFormState extends State<SignUpForm> {
           'email': emailController.text.trim()
         });
 
-        // Chech status of the responses
-        // if the status is 400, bad request
-        if ((response.statusCode) == 400) {
+        // Hide loading dialog
+        Navigator.of(context).pop();
+
+        // Check status of the responses
+        if (response.statusCode == 400) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg: responseData['error'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        } else if (response.statusCode == 201) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg: responseData['success'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: const Color.fromARGB(255, 54, 244, 187),
+            fontSize: 16.0,
+          );
+          // navigate to login page
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const LoginScreen()));
+        } else if (response.statusCode == 406) {
+          final responseData = json.decode(response.body);
+          Fluttertoast.showToast(
+            msg: responseData['error'],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        } else if (response.statusCode == 401) {
           final responseData = json.decode(response.body);
           Fluttertoast.showToast(
             msg: responseData['error'],
@@ -58,49 +118,12 @@ class SignupFormState extends State<SignUpForm> {
             fontSize: 16.0,
           );
         }
-        // if the 
-        else if ((response.statusCode) == 201) {
-          final responseData = json.decode(response.body);
-          Fluttertoast.showToast(
-            msg: responseData['success'],
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey[700],
-            textColor: const Color.fromARGB(255, 54, 244, 187),
-            fontSize: 16.0,
-          );
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const LoginScreen()),
-          // );
-        } else if ((response.statusCode) == 406) {
-          final responseData = json.decode(response.body);
-          Fluttertoast.showToast(
-            msg:responseData['error'],
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey[700],
-            textColor: Colors.red,
-            fontSize: 16.0,
-          );
-        }
-        else if((response.statusCode) == 401){
-          final responseData = json.decode(response.body);
-          Fluttertoast.showToast(
-            msg:responseData['error'],
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey[700],
-            textColor: Colors.red,
-            fontSize: 16.0,
-          );
-        }
       } catch (e) {
+        // Hide loading dialog
+        Navigator.of(context).pop();
+
         Fluttertoast.showToast(
-          msg: "Please check your network connection and Try again!",
+          msg: "Please check your network connection and try again!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -110,6 +133,9 @@ class SignupFormState extends State<SignUpForm> {
         );
       }
     } else {
+      // Hide loading dialog
+      Navigator.of(context).pop();
+
       Fluttertoast.showToast(
         msg: "Two passwords did not match",
         toastLength: Toast.LENGTH_SHORT,
@@ -135,7 +161,7 @@ class SignupFormState extends State<SignUpForm> {
             decoration: const InputDecoration(
               hintText: "User ID",
               prefixIcon: Padding(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: EdgeInsets.all(defaultPadding),
                 child: Icon(Icons.person),
               ),
             ),
@@ -165,7 +191,7 @@ class SignupFormState extends State<SignUpForm> {
             decoration: const InputDecoration(
               hintText: "Your password",
               prefixIcon: Padding(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: EdgeInsets.all(defaultPadding),
                 child: Icon(Icons.lock),
               ),
             ),
