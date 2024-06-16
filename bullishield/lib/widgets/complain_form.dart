@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-// import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:bullishield/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,15 +21,15 @@ class ComplainForm extends StatefulWidget {
 }
 
 class _ComplainFormState extends State<ComplainForm> {
-
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _bullyNameController = TextEditingController();
   final TextEditingController _bullyIdController = TextEditingController();
-  final TextEditingController _bullyingDateTimeController = TextEditingController();
+  final TextEditingController _bullyingDateTimeController =
+      TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
   List<File> _images = [];
   List<File> _bullyImage = [];
   String? _selectedHarassmentType;
@@ -37,7 +37,6 @@ class _ComplainFormState extends State<ComplainForm> {
   Future<void> _getImages() async {
     // Windows-specific image capturing
     if (Platform.isWindows) {
-
       final filePickerResult = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: true,
@@ -54,11 +53,10 @@ class _ComplainFormState extends State<ComplainForm> {
       final picker = ImagePicker();
       final pickedImages = await picker.pickMultiImage();
       setState(() {
-        _images = pickedImages
-            .map((pickedImage) => File(pickedImage.path))
-            .toList();
+        _images =
+            pickedImages.map((pickedImage) => File(pickedImage.path)).toList();
       });
-        }
+    }
   }
 
   Future<void> _getBullyImages() async {
@@ -81,9 +79,8 @@ class _ComplainFormState extends State<ComplainForm> {
       final pickedImages = await picker.pickMultiImage();
 
       setState(() {
-        _bullyImage = pickedImages
-            .map((pickedImage) => File(pickedImage.path))
-            .toList();
+        _bullyImage =
+            pickedImages.map((pickedImage) => File(pickedImage.path)).toList();
       });
     }
   }
@@ -124,113 +121,141 @@ class _ComplainFormState extends State<ComplainForm> {
 
   // SEND COMPLAIN DATA THROUGH API
 
-  void complainRegistration(String bullyName, String bullyid,String incidentDate, String description, String? harrasmentType) async {
+  void complainRegistration(String bullyName, String bullyid,
+      String incidentDate, String description, String? harrasmentType) async {
+    
+    // get backend config
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
     
-    String postComplainUrl = '$backendMeta/apis/complain_reg/';
-    String user_id = '';
-    String user_name = '';
+    // declare url for complain registration
+    String postComplainUrl = '$backendMeta/register_complain/';
 
-    // Create a new multipart request
-    var request = http.MultipartRequest('POST', Uri.parse(postComplainUrl));
-
-    // Add string fields to the request
-    request.fields['user_id'] = user_id;
-    request.fields['user_name'] = user_name;
-    request.fields['bully_name'] = bullyName;
-    request.fields['bully_id'] = bullyid;
-    request.fields['incident_date'] = _dateController.text.trim();
-    request.fields['description'] = description;
-    request.fields['harrasment_type'] = harrasmentType ?? '';
-
-    // Add image files to the request
+    // get userInformation
+    UserInfo userInfo = UserInfo();
+    Map<String, dynamic>? userDetails = await userInfo.getUsername();
     
-    for (var image in _images) {
-      var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
-      var length = await image.length();
-
-      var multipartFile = http.MultipartFile(
-        'image_proves',
-        stream,
-        length,
-        filename: path.basename(image.path),
+    if (userDetails != null) {
+      // declare response variable
+      http.Response response;
+      // get token info from shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      String userId = userDetails['full_name'];
+      
+      response = await http.post(
+        Uri.parse(postComplainUrl),
+        body: json.encode({
+          'username': userId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
       );
-
-      request.files.add(multipartFile);
+    } else {
+      // write logout code here and redirect to login page
     }
+    String userName = '';
+    // complain registrationURL
 
-    // Add bully image file to the request
-    for (var image in _bullyImage) {
-      var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
-      var length = await image.length();
+    // // Create a new multipart request
+    // var request = http.MultipartRequest('POST', Uri.parse(postComplainUrl));
 
-      var multipartFile = http.MultipartFile(
-        'bully_image',
-        stream,
-        length,
-        filename: path.basename(image.path),
-      );
+    // // Add string fields to the request
+    // request.fields['user_id'] = user_id;
+    // request.fields['user_name'] = user_name;
+    // request.fields['bully_name'] = bullyName;
+    // request.fields['bully_id'] = bullyid;
+    // request.fields['incident_date'] = _dateController.text.trim();
+    // request.fields['description'] = description;
+    // request.fields['harrasment_type'] = harrasmentType ?? '';
 
-      request.files.add(multipartFile);
-    }
-    // Send the request
-    try{
-      var response = await request.send();
+    // // Add image files to the request
 
-      if (response.statusCode == 200) {
-        if (Platform.isAndroid) {
-          Fluttertoast.showToast(
-            msg: "Complain posted successfully",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey[700],
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-        } else if (Platform.isWindows) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Complain posted successfully"),
-          ));
-        } else {
-          if (Platform.isAndroid) {
-            Fluttertoast.showToast(
-              msg: "Something went wrong! Please try again later.",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.grey[700],
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          } else if (Platform.isWindows) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Something went wrong! Please try again later."),
-            ));
-          }
-        }
-      }
-    } catch (e) {
-      if (Platform.isAndroid) {
-        Fluttertoast.showToast(
-          msg: "Please check your internet connection and try agin!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey[700],
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      } else if (Platform.isWindows) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please check your internet connection and try agin!"),
-        ));
-      }
-    }
+    // for (var image in _images) {
+    //   var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
+    //   var length = await image.length();
+
+    //   var multipartFile = http.MultipartFile(
+    //     'image_proves',
+    //     stream,
+    //     length,
+    //     filename: path.basename(image.path),
+    //   );
+
+    //   request.files.add(multipartFile);
+    // }
+
+    // // Add bully image file to the request
+    // for (var image in _bullyImage) {
+    //   var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
+    //   var length = await image.length();
+
+    //   var multipartFile = http.MultipartFile(
+    //     'bully_image',
+    //     stream,
+    //     length,
+    //     filename: path.basename(image.path),
+    //   );
+
+    //   request.files.add(multipartFile);
+    // }
+    // // Send the request
+    // try{
+    //   var response = await request.send();
+
+    //   if (response.statusCode == 200) {
+    //     if (Platform.isAndroid) {
+    //       Fluttertoast.showToast(
+    //         msg: "Complain posted successfully",
+    //         toastLength: Toast.LENGTH_SHORT,
+    //         gravity: ToastGravity.BOTTOM,
+    //         timeInSecForIosWeb: 1,
+    //         backgroundColor: Colors.grey[700],
+    //         textColor: Colors.white,
+    //         fontSize: 16.0,
+    //       );
+    //     } else if (Platform.isWindows) {
+    //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //         content: Text("Complain posted successfully"),
+    //       ));
+    //     } else {
+    //       if (Platform.isAndroid) {
+    //         Fluttertoast.showToast(
+    //           msg: "Something went wrong! Please try again later.",
+    //           toastLength: Toast.LENGTH_SHORT,
+    //           gravity: ToastGravity.BOTTOM,
+    //           timeInSecForIosWeb: 1,
+    //           backgroundColor: Colors.grey[700],
+    //           textColor: Colors.white,
+    //           fontSize: 16.0,
+    //         );
+    //       } else if (Platform.isWindows) {
+    //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //           content: Text("Something went wrong! Please try again later."),
+    //         ));
+    //       }
+    //     }
+    //   }
+    // } catch (e) {
+    //   if (Platform.isAndroid) {
+    //     Fluttertoast.showToast(
+    //       msg: "Please check your internet connection and try agin!",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       gravity: ToastGravity.BOTTOM,
+    //       timeInSecForIosWeb: 1,
+    //       backgroundColor: Colors.grey[700],
+    //       textColor: Colors.white,
+    //       fontSize: 16.0,
+    //     );
+    //   } else if (Platform.isWindows) {
+    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //       content: Text("Please check your internet connection and try agin!"),
+    //     ));
+    //   }
+    // }
   }
-
-  List<String> _harassmentTypes = [];
 
   @override
   void initState() {
@@ -240,13 +265,9 @@ class _ComplainFormState extends State<ComplainForm> {
 
   Future<void> fetchHarassmentTypes() async {
     try {
-      List<String> types = await getHarassmentTypes();
-      setState(() {
-        _harassmentTypes = types;
-      });
+      setState(() {});
     } catch (e) {
       // Handle the error if the harassment types couldn't be fetched
-      print('Error: $e');
     }
   }
 
@@ -312,7 +333,7 @@ class _ComplainFormState extends State<ComplainForm> {
             TextField(
               controller: _descriptionController,
               maxLines: 3,
-              decoration:const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Description',
               ),
             ),
@@ -348,7 +369,7 @@ class _ComplainFormState extends State<ComplainForm> {
                         child: Text(value),
                       );
                     }).toList(),
-                    decoration:const InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Select Type',
                       border: OutlineInputBorder(),
                     ),
@@ -406,8 +427,7 @@ class _ComplainFormState extends State<ComplainForm> {
                 if (_bullyNameController.text.isEmpty ||
                     _bullyIdController.text.isEmpty ||
                     _dateController.text.isEmpty ||
-                    _descriptionController.text.isEmpty ||
-                    _selectedHarassmentType == null) {
+                    _descriptionController.text.isEmpty) {
                   if (Platform.isAndroid) {
                     Fluttertoast.showToast(
                       msg: 'Please fill all the fields and select images',
