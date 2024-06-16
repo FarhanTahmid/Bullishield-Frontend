@@ -71,7 +71,6 @@ class LoginFormState extends State<LoginForm> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', responseData['access']);
         await prefs.setString('refresh_token', responseData['refresh']);
-
         Fluttertoast.showToast(
           msg: responseData['msg'],
           toastLength: Toast.LENGTH_SHORT,
