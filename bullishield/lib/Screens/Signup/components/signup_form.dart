@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'package:bullishield/Screens/Signup/signup_screen.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-// import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
 import '../../Login/login_screen.dart';
 import 'package:http/http.dart' as http;
