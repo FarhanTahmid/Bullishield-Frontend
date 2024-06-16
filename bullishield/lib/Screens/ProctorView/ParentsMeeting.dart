@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ParentsMeeting extends StatefulWidget {
+  const ParentsMeeting({super.key});
+
   @override
   _ParentsMeetingState createState() => _ParentsMeetingState();
 }
@@ -60,37 +62,37 @@ class _ParentsMeetingState extends State<ParentsMeeting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Parents Meeting'),
+        title: const Text('Parents Meeting'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Schedule a Meeting',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 elevation: 3,
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Select Date and Time:',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
@@ -115,44 +117,44 @@ class _ParentsMeetingState extends State<ParentsMeeting> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Send Meeting Message:',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: mobileNumberController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Mobile Number',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: meetingMessageController,
                 maxLines: 3,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Meeting Message',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: ElevatedButton(
                   onPressed: sendMeetingMessage,
-                  child: Text('Send Meeting Message'),
+                  child: const Text('Send Meeting Message'),
                 ),
               ),
             ],

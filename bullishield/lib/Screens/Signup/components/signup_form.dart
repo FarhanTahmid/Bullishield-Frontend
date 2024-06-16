@@ -29,7 +29,7 @@ class SignupFormState extends State<SignUpForm> {
       builder: (BuildContext context) {
         return const Dialog(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 class SeeDescription extends StatelessWidget {
+  const SeeDescription({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Complain Description'),
+        title: const Text('Complain Description'),
       ),
       body: Container(
-        padding: EdgeInsets.all(16.0),
-        margin: EdgeInsets.all(16.0),
-        child: Center(
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(16.0),
+        child: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

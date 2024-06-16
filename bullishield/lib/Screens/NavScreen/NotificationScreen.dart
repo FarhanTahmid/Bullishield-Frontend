@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class NotificationScreen extends StatefulWidget {
+  const NotificationScreen({super.key});
+
   @override
   _NotificationScreenState createState() => _NotificationScreenState();
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  List<NotificationModel> _notifications = [
+  final List<NotificationModel> _notifications = [
     NotificationModel(
       title: 'Complain Posted Successfully',
       description: 'Your complain has been posted successfully.',
@@ -30,7 +32,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifications'),
+        title: const Text('Notifications'),
       ),
       body: ListView.builder(
         itemCount: _notifications.length,
@@ -70,7 +72,7 @@ class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback onNotificationRead;
 
-  const NotificationCard({
+  const NotificationCard({super.key, 
     required this.notification,
     required this.onNotificationRead,
   });
@@ -78,7 +80,7 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListTile(
         leading: Icon(
           notification.icon,
@@ -116,31 +118,31 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Stack(
             children: [
-              Icon(Icons.notifications),
+              const Icon(Icons.notifications),
               if (unreadNotificationsCount > 0)
                 Positioned(
                   top: 0,
                   right: 0,
                   child: Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
-                    constraints: BoxConstraints(
+                    constraints: const BoxConstraints(
                       minWidth: 16,
                       minHeight: 16,
                     ),
                     child: Text(
                       unreadNotificationsCount.toString(),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                       ),
@@ -152,7 +154,7 @@ class MyDrawer extends StatelessWidget {
           ),
           label: 'Notifications',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.settings),
           label: 'Settings',
         ),

@@ -40,6 +40,8 @@ dependencies:
   fluttertoast: ^8.0.7
   shared_preferences: ^2.0.6
   velocity_x: ^4.2.1
+  image_picker: ^1.1.2
+  file_picker: ^8.0.5
 
 
 

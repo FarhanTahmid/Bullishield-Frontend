@@ -68,6 +68,7 @@ class LoginFormState extends State<LoginForm> {
 
       // Check status of the responses
       if (response.statusCode == 200) {
+        print("here");
         final responseData = json.decode(response.body);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', responseData['access']);
@@ -81,13 +82,14 @@ class LoginFormState extends State<LoginForm> {
           textColor: const Color.fromARGB(255, 54, 244, 187),
           fontSize: 16.0,
         );
+        // Hide loading dialog
+        Navigator.of(context).pop();
         // Navigate to homepage or another screen
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-        // Hide loading dialog
-        Navigator.of(context).pop();
+        
       } else {
         final responseData = json.decode(response.body);
         Fluttertoast.showToast(
@@ -168,12 +170,14 @@ class LoginFormState extends State<LoginForm> {
               children: <TextSpan>[
                 TextSpan(
                   text: 'Create',
-                  style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: kPrimaryColor, fontWeight: FontWeight.bold),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SignUpScreen()),
                       );
                     },
                 ),

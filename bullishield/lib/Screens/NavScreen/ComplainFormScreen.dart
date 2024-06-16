@@ -1,17 +1,17 @@
-// import 'package:bullishield/user.dart';
-// import 'package:flutter/material.dart';
-// import 'package:bullishield/widgets/complain_form.dart';
+// ignore: file_names
 
-// class ComplainFormScreen extends StatelessWidget {
-//   final User currentUser;
-//   const ComplainFormScreen({required this.currentUser});
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Complain Form'),
-//       ),
-//       body: ComplainForm(currentUser: currentUser),
-//     );
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:bullishield/widgets/complain_form.dart';
+
+class ComplainFormScreen extends StatelessWidget {
+  const ComplainFormScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Complain Form'),
+      ),
+      body: const ComplainForm(),
+    );
+  }
+}

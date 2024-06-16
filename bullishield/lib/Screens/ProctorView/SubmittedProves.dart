@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 class SubmittedProves extends StatelessWidget {
+  const SubmittedProves({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Submitted Proves'),
+        title: const Text('Submitted Proves'),
       ),
       body: GridView.builder(
-        padding: EdgeInsets.all(16.0),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        padding: const EdgeInsets.all(16.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 8.0,
           mainAxisSpacing: 8.0,
@@ -43,13 +45,13 @@ class SubmittedProves extends StatelessWidget {
 class ImageDetailsScreen extends StatelessWidget {
   final String imageUrl;
 
-  ImageDetailsScreen({required this.imageUrl});
+  const ImageDetailsScreen({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image Details'),
+        title: const Text('Image Details'),
       ),
       body: Center(
         child: Image.network(

@@ -14,7 +14,7 @@ void main() async {
 class MyApp extends StatefulWidget {
   final bool isAuthenticated;
 
-  MyApp({required this.isAuthenticated});
+  const MyApp({super.key, required this.isAuthenticated});
 
   @override
   // ignore: library_private_types_in_public_api

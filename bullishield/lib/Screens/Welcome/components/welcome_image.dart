@@ -5,8 +5,8 @@ import '../../../constants.dart';
 
 class WelcomeImage extends StatelessWidget {
   const WelcomeImage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class WelcomeImage extends StatelessWidget {
         const SizedBox(height: defaultPadding * 2),
         Row(
           children: [
-            Spacer(),
+            const Spacer(),
             Expanded(
               flex: 8,
               child: SvgPicture.asset(

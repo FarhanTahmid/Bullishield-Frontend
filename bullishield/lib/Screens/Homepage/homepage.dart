@@ -2,6 +2,7 @@
 // import 'dart:io';
 // import 'package:bullishield/Screens/NavScreens/ComplainFormScreen.dart';
 // import 'package:bullishield/Screens/Complain/complain.dart';
+import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:flutter/material.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 import '../../widgets/menu_drawer.dart';
@@ -59,12 +60,12 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Navigate to the Complain screen to create a new complain
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => ComplainFormScreen(currentUser: user),
-          //   ),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ComplainFormScreen(),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),

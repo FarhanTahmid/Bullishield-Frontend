@@ -17,7 +17,7 @@ class WelcomeScreen extends StatelessWidget {
             desktop: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Expanded(
+                Expanded(
                   child: WelcomeImage(),
                 ),
                 Expanded(
