@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:bullishield/Screens/Signup/signup_screen.dart';
 import 'package:bullishield/backend_config.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 // import '../../../components/already_have_an_account_acheck.dart';
@@ -218,19 +220,25 @@ class SignupFormState extends State<SignUpForm> {
             child: Text("Sign Up".toUpperCase()),
           ),
           const SizedBox(height: defaultPadding),
-          // AlreadyHaveAnAccountCheck(
-          //   login: false,
-          //   press: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) {
-          //           return LoginScreen();
-          //         },
-          //       ),
-          //     );
-          //   },
-          // ),
+          RichText(
+            text: TextSpan(
+              text: "Already have an account? ",
+              style: const TextStyle(color: Colors.black),
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'Login',
+                  style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
+                    },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

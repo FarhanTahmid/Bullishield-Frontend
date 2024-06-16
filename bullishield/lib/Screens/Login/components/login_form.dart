@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -27,7 +28,7 @@ class LoginFormState extends State<LoginForm> {
       builder: (BuildContext context) {
         return const Dialog(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -161,19 +162,25 @@ class LoginFormState extends State<LoginForm> {
             ),
           ),
           const SizedBox(height: defaultPadding),
-          // Uncomment the following lines to enable the signup navigation
-          // AlreadyHaveAnAccountCheck(
-          //   press: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) {
-          //           return SignUpScreen();
-          //         },
-          //       ),
-          //     );
-          //   },
-          // ),
+          RichText(
+            text: TextSpan(
+              text: "Don't have an account? ",
+              style: const TextStyle(color: Colors.black),
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'Create',
+                  style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                      );
+                    },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
