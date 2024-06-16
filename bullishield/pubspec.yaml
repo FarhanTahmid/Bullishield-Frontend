@@ -39,6 +39,7 @@ dependencies:
   http: ^1.2.1
   fluttertoast: ^8.0.7
   shared_preferences: ^2.0.6
+  velocity_x: ^4.2.1
 
 
 

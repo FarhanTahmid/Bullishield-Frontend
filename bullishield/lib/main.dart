@@ -1,5 +1,5 @@
 import 'Screens/Welcome/welcome_screen.dart';
-import 'Screens/Login/login_screen.dart';
+import 'Screens/Homepage/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:bullishield/constants.dart';
 import 'auth_manager.dart';
@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
   MyApp({required this.isAuthenticated});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
@@ -59,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       home:
-          widget.isAuthenticated ? const LoginScreen() : const WelcomeScreen(),
+          widget.isAuthenticated ? const HomePage() : const WelcomeScreen(),
     );
   }
 }

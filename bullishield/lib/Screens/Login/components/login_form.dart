@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bullishield/Screens/Homepage/homepage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -80,12 +81,11 @@ class LoginFormState extends State<LoginForm> {
           textColor: const Color.fromARGB(255, 54, 244, 187),
           fontSize: 16.0,
         );
-
         // Navigate to homepage or another screen
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => HomePage()),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
         // Hide loading dialog
         Navigator.of(context).pop();
       } else {
