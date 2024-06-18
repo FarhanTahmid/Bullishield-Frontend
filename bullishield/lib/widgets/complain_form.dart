@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,18 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:async/async.dart';
 
 class ComplainForm extends StatefulWidget {
   const ComplainForm({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _ComplainFormState createState() => _ComplainFormState();
+  State<ComplainForm> createState() => ComplainFormState();
 }
 
-class _ComplainFormState extends State<ComplainForm> {
+class ComplainFormState extends State<ComplainForm> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
@@ -100,21 +99,38 @@ class _ComplainFormState extends State<ComplainForm> {
     }
   }
 
+  // get complain types
   Future<List<String>> getHarassmentTypes() async {
     final List<String> harassmentTypes = [];
     // Make an HTTP GET request to your API endpoint
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
-
+    // get auth token
     final response =
-        await http.get(Uri.parse('$backendMeta/apis/complain_types'));
-
+        await http.get(Uri.parse('$backendMeta/get_complain_type/')
+        );
     // Check if the request was successful
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       jsonResponse['types'].forEach((key, value) {
         harassmentTypes.add(value);
       });
+    } else if (response.statusCode == 404) {
+      if (Platform.isAndroid) {
+        Fluttertoast.showToast(
+          msg: "Can not load Complain types",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[700],
+          textColor: Colors.red,
+          fontSize: 16.0,
+        );
+      } else if (Platform.isWindows) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Can not load Complain types!"),
+        ));
+      }
     }
     return harassmentTypes;
   }
@@ -123,30 +139,34 @@ class _ComplainFormState extends State<ComplainForm> {
 
   void complainRegistration(String bullyName, String bullyid,
       String incidentDate, String description, String? harrasmentType) async {
-    
     // get backend config
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
-    
+
     // declare url for complain registration
     String postComplainUrl = '$backendMeta/register_complain/';
 
     // get userInformation
     UserInfo userInfo = UserInfo();
     Map<String, dynamic>? userDetails = await userInfo.getUsername();
-    
+
     if (userDetails != null) {
       // declare response variable
-      http.Response response;
+      http.Response complainRegResponse;
       // get token info from shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       String userId = userDetails['full_name'];
-      
-      response = await http.post(
+
+      complainRegResponse = await http.post(
         Uri.parse(postComplainUrl),
         body: json.encode({
-          'username': userId,
+          'complainer_id': userId,
+          'bully_name': bullyName,
+          'bully_id': bullyid,
+          'incident_date': incidentDate,
+          'complain_description': description,
+          'harassment_type': harrasmentType
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -154,9 +174,28 @@ class _ComplainFormState extends State<ComplainForm> {
         },
       );
     } else {
-      // write logout code here and redirect to login page
+      // Redirect to login page
+      if (Platform.isAndroid) {
+        Fluttertoast.showToast(
+          msg: "Please try to login again!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[700],
+          textColor: Colors.red,
+          fontSize: 16.0,
+        );
+      } else if (Platform.isWindows) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please try to login again!"),
+        ));
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
     }
-    String userName = '';
+
     // complain registrationURL
 
     // // Create a new multipart request
@@ -257,6 +296,7 @@ class _ComplainFormState extends State<ComplainForm> {
     // }
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -265,9 +305,11 @@ class _ComplainFormState extends State<ComplainForm> {
 
   Future<void> fetchHarassmentTypes() async {
     try {
-      setState(() {});
+      setState(() {
+      });
     } catch (e) {
       // Handle the error if the harassment types couldn't be fetched
+      print('Error: $e');
     }
   }
 
@@ -444,7 +486,7 @@ class _ComplainFormState extends State<ComplainForm> {
                   complainRegistration(
                     _bullyNameController.text,
                     _bullyIdController.text,
-                    _dateController.text,
+                    _dateController.text.trim(),
                     _descriptionController.text,
                     _selectedHarassmentType,
                   );
