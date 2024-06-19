@@ -10,23 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as path;
 
 class ComplainForm extends StatefulWidget {
   const ComplainForm({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   State<ComplainForm> createState() => ComplainFormState();
 }
 
 class ComplainFormState extends State<ComplainForm> {
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _idController = TextEditingController();
   final TextEditingController _bullyNameController = TextEditingController();
   final TextEditingController _bullyIdController = TextEditingController();
-  final TextEditingController _bullyingDateTimeController =
-      TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   List<File> _images = [];
@@ -99,17 +95,12 @@ class ComplainFormState extends State<ComplainForm> {
     }
   }
 
-  // get complain types
   Future<List<String>> getHarassmentTypes() async {
     final List<String> harassmentTypes = [];
-    // Make an HTTP GET request to your API endpoint
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
-    // get auth token
-    final response =
-        await http.get(Uri.parse('$backendMeta/get_complain_type/')
-        );
-    // Check if the request was successful
+
+    final response = await http.get(Uri.parse('$backendMeta/get_complain_type/'));
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       jsonResponse['types'].forEach((key, value) {
@@ -118,63 +109,159 @@ class ComplainFormState extends State<ComplainForm> {
     } else if (response.statusCode == 404) {
       if (Platform.isAndroid) {
         Fluttertoast.showToast(
-          msg: "Can not load Complain types",
+          msg: "Cannot load Complain types",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey[700],
+          backgroundColor: const Color.fromARGB(255, 228, 215, 215),
           textColor: Colors.red,
           fontSize: 16.0,
         );
       } else if (Platform.isWindows) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Can not load Complain types!"),
+          content: Text("Cannot load Complain types!"),
         ));
       }
     }
     return harassmentTypes;
   }
 
-  // SEND COMPLAIN DATA THROUGH API
-
-  void complainRegistration(String bullyName, String bullyid,
-      String incidentDate, String description, String? harrasmentType) async {
-    // get backend config
+  void complainRegistration(String bullyName, String bullyId, String incidentDate, String description, String? harassmentType) async {
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
-
-    // declare url for complain registration
     String postComplainUrl = '$backendMeta/register_complain/';
 
-    // get userInformation
     UserInfo userInfo = UserInfo();
     Map<String, dynamic>? userDetails = await userInfo.getUsername();
 
     if (userDetails != null) {
-      // declare response variable
-      http.Response complainRegResponse;
-      // get token info from shared preferences
+      String userId = userDetails['user_id'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      String userId = userDetails['full_name'];
 
-      complainRegResponse = await http.post(
-        Uri.parse(postComplainUrl),
-        body: json.encode({
-          'complainer_id': userId,
-          'bully_name': bullyName,
-          'bully_id': bullyid,
-          'incident_date': incidentDate,
-          'complain_description': description,
-          'harassment_type': harrasmentType
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        },
-      );
+      var request = http.MultipartRequest('POST', Uri.parse(postComplainUrl));
+      request.fields['complainer_id'] = userId;
+      request.fields['bully_name'] = bullyName;
+      request.fields['bully_id'] = bullyId;
+      request.fields['incident_date'] = incidentDate;
+      request.fields['complain_description'] = description;
+      request.fields['harassment_type'] = harassmentType ?? '';
+
+      for (var image in _images) {
+        var stream = http.ByteStream(image.openRead());
+        var length = await image.length();
+        var multipartFile = http.MultipartFile(
+          'image_proves',
+          stream,
+          length,
+          filename: path.basename(image.path),
+        );
+        request.files.add(multipartFile);
+      }
+
+      for (var image in _bullyImage) {
+        var stream = http.ByteStream(image.openRead());
+        var length = await image.length();
+        var multipartFile = http.MultipartFile(
+          'bully_image',
+          stream,
+          length,
+          filename: path.basename(image.path),
+        );
+        request.files.add(multipartFile);
+      }
+
+      request.headers['Authorization'] = 'Bearer $token';
+
+      try {
+        var response = await request.send();
+        var responseBody = await response.stream.bytesToString();
+        var responseData = json.decode(responseBody);
+
+        if (response.statusCode == 200) {
+          if (Platform.isAndroid) {
+            Fluttertoast.showToast(
+              msg: responseData['msg'],
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.grey[700],
+              textColor: Colors.green[400],
+              fontSize: 16.0,
+            );
+          } else if (Platform.isWindows) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(responseData['msg']),
+            ));
+          }
+        }else if(response.statusCode==403){
+          if (Platform.isAndroid) {
+            Fluttertoast.showToast(
+              msg: responseData['msg'],
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.grey[700],
+              textColor: Colors.red,
+              fontSize: 16.0,
+            );
+          } else if (Platform.isWindows) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(responseData['msg']),
+            ));
+          }
+        }else if(response.statusCode==424){
+          if (Platform.isAndroid) {
+            Fluttertoast.showToast(
+              msg: responseData['msg'],
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.grey[700],
+              textColor: Colors.red,
+              fontSize: 16.0,
+            );
+          } else if (Platform.isWindows) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(responseData['msg']),
+            ));
+          }
+        } 
+        else {
+          if (Platform.isAndroid) {
+            Fluttertoast.showToast(
+              msg: "Something went wrong! Please try again later.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.grey[700],
+              textColor: Colors.red,
+              fontSize: 16.0,
+            );
+          } else if (Platform.isWindows) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Something went wrong! Please try again later."),
+            ));
+          }
+        }
+      } catch (e) {
+        if (Platform.isAndroid) {
+          Fluttertoast.showToast(
+            msg: "$e",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[700],
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        } else if (Platform.isWindows) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Please check your internet connection and try again!"),
+          ));
+        }
+      }
     } else {
-      // Redirect to login page
       if (Platform.isAndroid) {
         Fluttertoast.showToast(
           msg: "Please try to login again!",
@@ -195,107 +282,7 @@ class ComplainFormState extends State<ComplainForm> {
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     }
-
-    // complain registrationURL
-
-    // // Create a new multipart request
-    // var request = http.MultipartRequest('POST', Uri.parse(postComplainUrl));
-
-    // // Add string fields to the request
-    // request.fields['user_id'] = user_id;
-    // request.fields['user_name'] = user_name;
-    // request.fields['bully_name'] = bullyName;
-    // request.fields['bully_id'] = bullyid;
-    // request.fields['incident_date'] = _dateController.text.trim();
-    // request.fields['description'] = description;
-    // request.fields['harrasment_type'] = harrasmentType ?? '';
-
-    // // Add image files to the request
-
-    // for (var image in _images) {
-    //   var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
-    //   var length = await image.length();
-
-    //   var multipartFile = http.MultipartFile(
-    //     'image_proves',
-    //     stream,
-    //     length,
-    //     filename: path.basename(image.path),
-    //   );
-
-    //   request.files.add(multipartFile);
-    // }
-
-    // // Add bully image file to the request
-    // for (var image in _bullyImage) {
-    //   var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
-    //   var length = await image.length();
-
-    //   var multipartFile = http.MultipartFile(
-    //     'bully_image',
-    //     stream,
-    //     length,
-    //     filename: path.basename(image.path),
-    //   );
-
-    //   request.files.add(multipartFile);
-    // }
-    // // Send the request
-    // try{
-    //   var response = await request.send();
-
-    //   if (response.statusCode == 200) {
-    //     if (Platform.isAndroid) {
-    //       Fluttertoast.showToast(
-    //         msg: "Complain posted successfully",
-    //         toastLength: Toast.LENGTH_SHORT,
-    //         gravity: ToastGravity.BOTTOM,
-    //         timeInSecForIosWeb: 1,
-    //         backgroundColor: Colors.grey[700],
-    //         textColor: Colors.white,
-    //         fontSize: 16.0,
-    //       );
-    //     } else if (Platform.isWindows) {
-    //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-    //         content: Text("Complain posted successfully"),
-    //       ));
-    //     } else {
-    //       if (Platform.isAndroid) {
-    //         Fluttertoast.showToast(
-    //           msg: "Something went wrong! Please try again later.",
-    //           toastLength: Toast.LENGTH_SHORT,
-    //           gravity: ToastGravity.BOTTOM,
-    //           timeInSecForIosWeb: 1,
-    //           backgroundColor: Colors.grey[700],
-    //           textColor: Colors.white,
-    //           fontSize: 16.0,
-    //         );
-    //       } else if (Platform.isWindows) {
-    //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-    //           content: Text("Something went wrong! Please try again later."),
-    //         ));
-    //       }
-    //     }
-    //   }
-    // } catch (e) {
-    //   if (Platform.isAndroid) {
-    //     Fluttertoast.showToast(
-    //       msg: "Please check your internet connection and try agin!",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.grey[700],
-    //       textColor: Colors.white,
-    //       fontSize: 16.0,
-    //     );
-    //   } else if (Platform.isWindows) {
-    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-    //       content: Text("Please check your internet connection and try agin!"),
-    //     ));
-    //   }
-    // }
   }
-
 
   @override
   void initState() {
@@ -308,18 +295,15 @@ class ComplainFormState extends State<ComplainForm> {
       setState(() {
       });
     } catch (e) {
-      // Handle the error if the harassment types couldn't be fetched
       print('Error: $e');
     }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _idController.dispose();
+    _dateController.dispose();
     _bullyNameController.dispose();
     _bullyIdController.dispose();
-    _bullyingDateTimeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -496,18 +480,14 @@ class ComplainFormState extends State<ComplainForm> {
             ),
             TextButton(
               onPressed: () {
-                // Clear the form fields
-                _nameController.clear();
-                _idController.clear();
                 _bullyNameController.clear();
                 _bullyIdController.clear();
-                _bullyingDateTimeController.clear();
+                _dateController.clear();
                 _descriptionController.clear();
                 setState(() {
-                  _images = []; // Clear the selected images
-                  _bullyImage = []; // Clear the selected bully images
-                  _selectedHarassmentType =
-                      null; // Clear the selected harassment type
+                  _images = [];
+                  _bullyImage = [];
+                  _selectedHarassmentType = null;
                 });
               },
               child: const Text('Reset'),
