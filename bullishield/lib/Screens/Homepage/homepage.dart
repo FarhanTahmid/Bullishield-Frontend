@@ -6,7 +6,6 @@ import 'package:bullishield/widgets/menu_drawer.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
-import 'package:bullishield/user_info.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,37 +52,26 @@ class _HomePageState extends State<HomePage> {
         if (responseBody.isNotEmpty) {
           var responseData = jsonDecode(responseBody);
           setState(() {
-          complainList = List<Complain>.from(responseData['complain_list'].map((complainData) {
-            return Complain(
-              complain_id: complainData['id'],
-              bullyName: complainData['bully_name'],
-              incidentDate: complainData['incident_date'],
-              complainDescription: complainData['complain_description'],
-              complainStatus: complainData['complain_status'],
-            );
-          }));
-          isLoading = false;
-        });
+            complainList = List<Complain>.from(responseData['complain_list'].map((complainData) {
+              return Complain(
+                complain_id: complainData['id'],
+                bullyName: complainData['bully_name'],
+                incidentDate: complainData['incident_date'],
+                complainDescription: complainData['complain_description'],
+                complainStatus: complainData['complain_status'],
+              );
+            }));
+            isLoading = false;
+          });
         }
-        
-      }else if(response.statusCode==401){
-          var responseData = jsonDecode(response.body);
-          showErrorToast(responseData['msg']);
-          Navigator.of(context).pop();
-          // Navigate to homepage or another screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-      }else if(response.statusCode==400){
-          var responseData = jsonDecode(response.body);
-          showErrorToast(responseData['msg']);
-          Navigator.of(context).pop();
-          // Navigate to homepage or another screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
+      } else if (response.statusCode == 401 || response.statusCode == 400) {
+        var responseData = jsonDecode(response.body);
+        showErrorToast(responseData['msg']);
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
       } else {
         showErrorToast('Failed to fetch complaints');
         setState(() {
@@ -132,30 +120,43 @@ class _HomePageState extends State<HomePage> {
                       itemCount: complainList.length,
                       itemBuilder: (context, index) {
                         Complain complain = complainList[index];
-                        return ListTile(
-                          title: Text("Bully: ${complain.bullyName}"),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Date: ${complain.incidentDate}"),
-                              Text("Status: ${complain.complainStatus}"),
-                              Text(
-                                "Description: ${complain.complainDescription}",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Bully: ${complain.bullyName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 8),
+                                      Text("Date: ${complain.incidentDate}", style: TextStyle(fontSize: 16)),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Description: ${complain.complainDescription}",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      complain.complainStatus,
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          onTap: () {
-                            // Navigate to the Complain Details Screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ComplainDetailsScreen(complain: complain),
-                              ),
-                            );
-                          },
                         );
                       },
                     )
@@ -164,7 +165,6 @@ class _HomePageState extends State<HomePage> {
       drawer: const MyDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the Complain Form Screen to create a new complain
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -197,8 +197,7 @@ class Complain {
 class ComplainDetailsScreen extends StatelessWidget {
   final Complain complain;
 
-  const ComplainDetailsScreen({Key? key, required this.complain})
-      : super(key: key);
+  const ComplainDetailsScreen({Key? key, required this.complain}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -211,16 +210,13 @@ class ComplainDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Bully: ${complain.bullyName}",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text("Bully: ${complain.bullyName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            Text("Date: ${complain.incidentDate}",
-                style: TextStyle(fontSize: 16)),
+            Text("Date: ${complain.incidentDate}", style: TextStyle(fontSize: 16)),
             SizedBox(height: 8),
-            Text("Status: ${complain.complainStatus}", style: TextStyle(fontSize: 16)),
+            Text("Status: ${complain.complainStatus}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
             SizedBox(height: 8),
-            Text("Description:",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text("Description:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
             Text(complain.complainDescription, style: TextStyle(fontSize: 16)),
           ],
