@@ -93,6 +93,8 @@ class SignupFormState extends State<SignUpForm> {
             textColor: const Color.fromARGB(255, 54, 244, 187),
             fontSize: 16.0,
           );
+          //pop signup page
+          Navigator.of(context).pop();
           // navigate to login page
           Navigator.push(context,MaterialPageRoute(builder: (context) => const LoginScreen()));
         } else if (response.statusCode == 406) {

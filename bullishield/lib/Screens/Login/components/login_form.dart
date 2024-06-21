@@ -83,6 +83,8 @@ class LoginFormState extends State<LoginForm> {
         );
         // Hide loading dialog
         Navigator.of(context).pop();
+        // get the login page out of context
+        Navigator.of(context).pop();
         // Navigate to homepage or another screen
         Navigator.push(
           context,
@@ -170,12 +172,14 @@ class LoginFormState extends State<LoginForm> {
             RichText(
               text: TextSpan(
                 text: "Don't have an account? ",
-                style: const TextStyle(color: Colors.black,fontSize: 17),
+                style: const TextStyle(color: Colors.black, fontSize: 17),
                 children: <TextSpan>[
                   TextSpan(
                     text: 'Create',
-                    style: const TextStyle(fontSize: 17,
-                        color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 17,
+                        color: kPrimaryColor,
+                        fontWeight: FontWeight.bold),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
                         Navigator.push(

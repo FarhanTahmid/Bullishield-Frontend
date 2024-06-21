@@ -1,3 +1,5 @@
+import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
+import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -197,13 +199,13 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) =>
-                //         ComplainFormScreen(currentUser: widget.currentUser),
-                //   ),
-                // );
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ComplainFormScreen(),
+                  ),
+                );
               },
               child: ListTile(
                 leading: Icon(
@@ -245,6 +247,12 @@ class MyDrawerState extends State<MyDrawer> {
                 //     );
                 //   }
                 // }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProctorHomepage(),
+                  ),
+                );
               },
               child: ListTile(
                 leading: Icon(
