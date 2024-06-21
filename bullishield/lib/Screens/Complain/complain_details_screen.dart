@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/complain.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +6,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ComplainDetailsScreen extends StatefulWidget {
   final Complain complain;
-  
+
   const ComplainDetailsScreen({super.key, required this.complain});
 
   @override
@@ -20,11 +21,11 @@ class ComplainDetailsScreen extends StatefulWidget {
 
 class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
   BackendConfiguration backend = BackendConfiguration();
-  
+
   bool isLoading = true;
   List<String> proofImages = [];
   List<String> bullyImages = [];
-  
+
   String organizationName = "";
   bool complainValidation = false;
   String complainType = "";
@@ -46,10 +47,9 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    BackendConfiguration backend = BackendConfiguration();
-    String backendMeta = backend.getBackendApiURL();
+    String backendApiURL = backend.getBackendApiURL();
 
-    var getComplainDetailsURL = "$backendMeta/get_complain_details/";
+    var getComplainDetailsURL = "$backendApiURL/get_complain_details/";
 
     try {
       final response = await http.post(
@@ -72,7 +72,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
               : [];
           bullyID = responseData['bully_id'] ?? "";
           organizationName = responseData['organization_name'] ?? "";
-          complainValidation = responseData['complain_validation'] ?? "";
+          complainValidation = responseData['complain_validation'] ?? false;
           complainType = responseData['complain_type'] ?? "";
           proctorDecision = responseData['proctor_decision'] ?? "";
           isBullyGuilty = responseData['is_bully_guilty'] ?? false;
@@ -104,6 +104,35 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
     );
   }
 
+  void showImageViewer(List<String> images, int initialIndex) {
+    String backendApiURL=backend.getBackendApiURL();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Proof Images'),
+          ),
+          body: PhotoViewGallery.builder(
+            itemCount: images.length,
+            builder: (context, index) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage('$backendApiURL${images[index]}'),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 2,
+              );
+            },
+            scrollPhysics: const BouncingScrollPhysics(),
+            backgroundDecoration: const BoxDecoration(
+              color: Colors.black,
+            ),
+            pageController: PageController(initialPage: initialIndex),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,12 +150,12 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        buildBooleanField(
-                            "Validation", complainValidation ? "Valid Bullying":"Invalid Complain",complainValidation ? Colors.green:Colors.red),
-                        buildBooleanField("Status",
-                            widget.complain.complainStatus, Colors.blue),
-                        buildBooleanField(
-                            "Bully Guilty?",
+                        buildBooleanField("Validation",
+                            complainValidation ? "Valid Bullying" : "Invalid Complain",
+                            complainValidation ? Colors.green : Colors.red),
+                        buildBooleanField("Status", widget.complain.complainStatus,
+                            Colors.blue),
+                        buildBooleanField("Bully Guilty?",
                             isBullyGuilty ? "Yes" : "No",
                             isBullyGuilty ? Colors.red : Colors.green),
                       ],
@@ -137,16 +166,13 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildDetailText(
-                            "Bully Name: ${widget.complain.bullyName}",
+                        buildDetailText("Bully Name: ${widget.complain.bullyName}",
                             isBold: true),
                         buildDetailText("Organization: $organizationName",
                             isBold: true),
-                        buildDetailText("Bully ID: $bullyID",
-                            isBold: true),
-                        buildDetailText("Type: $complainType", isBold: true),
-                        buildDetailText(
-                            "Date: ${widget.complain.incidentDate}"),
+                        buildDetailText("Bully ID: $bullyID", isBold: true),
+                        buildDetailText("Complain Type: $complainType", isBold: true),
+                        buildDetailText("Date: ${widget.complain.incidentDate}"),
                         buildDetailText("Description:", isBold: true),
                         const SizedBox(height: 8),
                         Text(widget.complain.complainDescription,
@@ -160,8 +186,12 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildDetailText("Proof Images:", isBold: true),
-                        buildImageCarousel(
-                            proofImages, "No proof images available"),
+                        if (proofImages.length > 1)
+                          const Text(
+                            "Swipe to view more",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        buildImageCarousel(proofImages, "No proof images available"),
                       ],
                     ),
                   ),
@@ -171,8 +201,12 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildDetailText("Bully Images:", isBold: true),
-                        buildImageCarousel(
-                            bullyImages, "No bully images available"),
+                        if (bullyImages.length > 1)
+                          const Text(
+                            "Swipe to view more",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        buildImageCarousel(bullyImages, "No bully images available"),
                       ],
                     ),
                   ),
@@ -183,8 +217,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                       children: [
                         buildDetailText("Proctor Decision:", isBold: true),
                         const SizedBox(height: 8),
-                        Text(proctorDecision,
-                            style: const TextStyle(fontSize: 16)),
+                        Text(proctorDecision, style: const TextStyle(fontSize: 16)),
                       ],
                     ),
                   ),
@@ -251,34 +284,39 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
   }
 
   Widget buildImageCarousel(List<String> images, String emptyText) {
+    String backendApiURL=backend.getBackendApiURL();
     return images.isNotEmpty
-        ? CarouselSlider(
-            options: CarouselOptions(
-              height: 200.0,
-              enlargeCenterPage: true,
-              enableInfiniteScroll: false,
-            ),
-            items: images.map((imageUrl) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Image.network(
-                    'http://192.168.0.123:8000$imageUrl',
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  (loadingProgress.expectedTotalBytes ?? 1)
-                              : null,
-                        ),
-                      );
-                    },
+        ? Column(
+            children: [
+              CarouselSlider.builder(
+                options: CarouselOptions(
+                  height: 200.0,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index, realIndex) {
+                  return GestureDetector(
+                    onTap: () => showImageViewer(images, index),
+                    child: Image.network(
+                      '$backendApiURL${images[index]}',
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
-              );
-            }).toList(),
+              ),
+            ],
           )
         : Text(emptyText);
   }
