@@ -13,8 +13,8 @@ class WelcomeImage extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          "WELCOME TO BulliShield",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          "Welcome To BulliShield",
+          style: TextStyle(color: kPrimaryColor,fontSize: 18),
         ),
         const SizedBox(height: defaultPadding * 2),
         Row(

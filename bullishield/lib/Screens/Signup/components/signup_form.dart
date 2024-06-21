@@ -215,17 +215,17 @@ class SignupFormState extends State<SignUpForm> {
           const SizedBox(height: defaultPadding / 2),
           ElevatedButton(
             onPressed: signup,
-            child: Text("Sign Up".toUpperCase()),
+            child: const Text("Sign Up",style: TextStyle(fontSize: 16),),
           ),
           const SizedBox(height: defaultPadding),
           RichText(
             text: TextSpan(
               text: "Already have an account? ",
-              style: const TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black,fontSize: 17),
               children: <TextSpan>[
                 TextSpan(
                   text: 'Login',
-                  style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold,fontSize: 17),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       Navigator.push(

@@ -68,7 +68,6 @@ class LoginFormState extends State<LoginForm> {
 
       // Check status of the responses
       if (response.statusCode == 200) {
-        print("here");
         final responseData = json.decode(response.body);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', responseData['access']);
@@ -89,7 +88,6 @@ class LoginFormState extends State<LoginForm> {
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-        
       } else {
         final responseData = json.decode(response.body);
         Fluttertoast.showToast(
@@ -120,71 +118,76 @@ class LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      child: Column(
-        children: [
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            cursorColor: kPrimaryColor,
-            controller: userIdController,
-            decoration: const InputDecoration(
-              hintText: "User ID",
-              prefixIcon: Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: Icon(Icons.person),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
-            child: TextFormField(
-              textInputAction: TextInputAction.done,
-              obscureText: true,
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
               cursorColor: kPrimaryColor,
-              controller: passwordController,
+              controller: userIdController,
               decoration: const InputDecoration(
-                hintText: "Password",
+                hintText: "User ID",
                 prefixIcon: Padding(
                   padding: EdgeInsets.all(defaultPadding),
-                  child: Icon(Icons.lock),
+                  child: Icon(Icons.person),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: defaultPadding),
-          Hero(
-            tag: "login_btn",
-            child: ElevatedButton(
-              onPressed: login,
-              child: Text(
-                "Login".toUpperCase(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+              child: TextFormField(
+                textInputAction: TextInputAction.done,
+                obscureText: true,
+                cursorColor: kPrimaryColor,
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  hintText: "Password",
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(defaultPadding),
+                    child: Icon(Icons.lock),
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: defaultPadding),
-          RichText(
-            text: TextSpan(
-              text: "Don't have an account? ",
-              style: const TextStyle(color: Colors.black),
-              children: <TextSpan>[
-                TextSpan(
-                  text: 'Create',
-                  style: const TextStyle(
-                      color: kPrimaryColor, fontWeight: FontWeight.bold),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignUpScreen()),
-                      );
-                    },
+            const SizedBox(height: defaultPadding),
+            Hero(
+              tag: "login_btn",
+              child: ElevatedButton(
+                onPressed: login,
+                child: const Text(
+                  "Login",
+                  style: TextStyle(fontSize: 16),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: defaultPadding),
+            RichText(
+              text: TextSpan(
+                text: "Don't have an account? ",
+                style: const TextStyle(color: Colors.black,fontSize: 17),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: 'Create',
+                    style: const TextStyle(fontSize: 17,
+                        color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignUpScreen()),
+                        );
+                      },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

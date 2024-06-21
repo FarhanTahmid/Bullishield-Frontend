@@ -5,11 +5,12 @@ import '../../Login/login_screen.dart';
 import '../../Signup/signup_screen.dart';
 
 class LoginAndSignupBtn extends StatelessWidget {
-  const LoginAndSignupBtn({super.key,});
+  const LoginAndSignupBtn({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Hero(
           tag: "login_btn",
@@ -24,12 +25,13 @@ class LoginAndSignupBtn extends StatelessWidget {
                 ),
               );
             },
-            child: Text(
-              "Login".toUpperCase(),
+            child: const Text(
+              "Login",
+              style: TextStyle(fontSize: 16),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
             Navigator.push(
@@ -41,11 +43,9 @@ class LoginAndSignupBtn extends StatelessWidget {
               ),
             );
           },
-          style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryLightColor, elevation: 0),
-          child: Text(
-            "Sign Up".toUpperCase(),
-            style: const TextStyle(color: Colors.black),
+          child: const Text(
+            "Sign Up",
+            style: TextStyle(fontSize: 16),
           ),
         ),
       ],

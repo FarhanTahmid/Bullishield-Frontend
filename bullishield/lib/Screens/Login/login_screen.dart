@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bullishield/responsive.dart';
-
 import '../../components/background.dart';
 import 'components/login_form.dart';
 import 'components/login_screen_top_image.dart';
@@ -39,7 +38,7 @@ class LoginScreen extends StatelessWidget {
 }
 
 class MobileLoginScreen extends StatelessWidget {
-  const MobileLoginScreen({super.key,});
+  const MobileLoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,15 +46,9 @@ class MobileLoginScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         LoginScreenTopImage(),
-        Row(
-          children: [
-            Spacer(),
-            Expanded(
-              flex: 8,
-              child: LoginForm(),
-            ),
-            Spacer(),
-          ],
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: LoginForm(),
         ),
       ],
     );
