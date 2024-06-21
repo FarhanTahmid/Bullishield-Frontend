@@ -1,9 +1,9 @@
-import 'package:bullishield/backend_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:bullishield/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Screens/Login/login_screen.dart';
+import 'package:bullishield/backend_config.dart';
+import 'package:bullishield/user_info.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({super.key});
@@ -43,12 +43,52 @@ class MyDrawerState extends State<MyDrawer> {
 
   Future<void> removeToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+    await prefs.remove('access_token');
   }
 
   Future<void> removeUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('username');
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    // Remove tokens
+    await removeToken();
+    await removeUsername();
+
+    // Navigate to login screen
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _logout(context);
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -222,18 +262,11 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             GestureDetector(
               onTap: () {
-                removeToken();
-                removeUsername();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
+                _showLogoutDialog(context);
               },
               child: ListTile(
                 leading: Icon(
-                  CupertinoIcons.eject_fill,
+                  CupertinoIcons.greaterthan_circle_fill,
                   color: Colors.purple.shade900,
                 ),
                 title: Text(

@@ -89,6 +89,8 @@ class LoginFormState extends State<LoginForm> {
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else {
+        // Hide loading dialog
+        Navigator.of(context).pop();
         final responseData = json.decode(response.body);
         Fluttertoast.showToast(
           msg: responseData['msg'],
