@@ -17,7 +17,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Complain> complainList = [];
+  List<Complain> filteredComplainList = [];
   bool isLoading = true;
+  bool isSearching = false;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _HomePageState extends State<HomePage> {
                 complainStatus: complainData['complain_status'],
               );
             }));
+            filteredComplainList = complainList;
             isLoading = false;
           });
         }
@@ -98,6 +102,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void filterComplaints(String query) {
+    List<Complain> filteredList = [];
+    if (query.isNotEmpty) {
+      filteredList = complainList.where((complain) {
+        return complain.bullyName.toLowerCase().contains(query.toLowerCase()) ||
+            complain.incidentDate.toLowerCase().contains(query.toLowerCase()) ||
+            complain.complainDescription.toLowerCase().contains(query.toLowerCase()) ||
+            complain.complainStatus.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    } else {
+      filteredList = complainList;
+    }
+
+    setState(() {
+      filteredComplainList = filteredList;
+    });
+  }
+
   Future<void> _refreshList() async {
     await fetchComplaints();
   }
@@ -106,55 +128,97 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "BulliShield",
-          textScaler: TextScaler.linear(1.2),
-        ),
+        title: isSearching
+            ? TextField(
+                controller: searchController,
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(
+                  hintText: "Search complaints...",
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) => filterComplaints(query),
+              )
+            : const Text(
+                "BulliShield",
+                textScaler: TextScaler.linear(1.2),
+              ),
+        actions: [
+          isSearching
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      isSearching = false;
+                      searchController.clear();
+                      filteredComplainList = complainList;
+                    });
+                  },
+                )
+              : IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      isSearching = true;
+                    });
+                  },
+                ),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _refreshList,
-              child: complainList.isNotEmpty
+              child: filteredComplainList.isNotEmpty
                   ? ListView.builder(
-                      itemCount: complainList.length,
+                      itemCount: filteredComplainList.length,
                       itemBuilder: (context, index) {
-                        Complain complain = complainList[index];
+                        Complain complain = filteredComplainList[index];
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ComplainDetailsScreen(complain: complain),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Bully: ${complain.bullyName}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 8),
+                                        Text("Date: ${complain.incidentDate}", style: const TextStyle(fontSize: 16)),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Description: ${complain.complainDescription}",
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      Text("Bully: ${complain.bullyName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                      SizedBox(height: 8),
-                                      Text("Date: ${complain.incidentDate}", style: TextStyle(fontSize: 16)),
-                                      SizedBox(height: 8),
                                       Text(
-                                        "Description: ${complain.complainDescription}",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                        complain.complainStatus,
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
                                       ),
                                     ],
                                   ),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      complain.complainStatus,
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
