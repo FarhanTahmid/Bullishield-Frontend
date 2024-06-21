@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bullishield/Screens/Complain/complain_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/Login/login_screen.dart';
@@ -7,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:bullishield/complain.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -237,54 +238,6 @@ class _HomePageState extends State<HomePage> {
           );
         },
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class Complain {
-  final int complain_id;
-  final String bullyName;
-  final String incidentDate;
-  final String complainDescription;
-  final String complainStatus;
-
-  Complain({
-    required this.complain_id,
-    required this.bullyName,
-    required this.incidentDate,
-    required this.complainDescription,
-    required this.complainStatus,
-  });
-}
-
-class ComplainDetailsScreen extends StatelessWidget {
-  final Complain complain;
-
-  const ComplainDetailsScreen({Key? key, required this.complain}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Complain Details"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Bully: ${complain.bullyName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("Date: ${complain.incidentDate}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            Text("Status: ${complain.complainStatus}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-            SizedBox(height: 8),
-            Text("Description:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text(complain.complainDescription, style: TextStyle(fontSize: 16)),
-          ],
-        ),
       ),
     );
   }

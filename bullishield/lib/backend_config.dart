@@ -5,7 +5,7 @@ class BackendConfiguration {
     String apiMeta = "";
     if(debugStatus){
       // provide development backend
-      apiMeta = "http://10.0.2.2:8000";
+      apiMeta = "http://192.168.0.123:8000";
     }else{
       // provide production backend
       apiMeta = "https://api-prod.example.com";
