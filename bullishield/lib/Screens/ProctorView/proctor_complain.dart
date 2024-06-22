@@ -6,7 +6,7 @@ class ProctorComplain {
 
   final String incidentDate;
   final String complainDescription;
-  final String complainValidation;
+  final bool complainValidation;
   final String complainStatus;
   final String proctorDecision;
   final String guilty;

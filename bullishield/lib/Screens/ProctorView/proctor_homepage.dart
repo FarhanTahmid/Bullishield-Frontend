@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
-// import 'package:bullishield/Screens/ProctorView/proctor_complain_description.dart';
+import 'package:bullishield/Screens/ProctorView/proctor_complain_description.dart';
 
 class ProctorHomepage extends StatefulWidget {
   const ProctorHomepage({super.key});
@@ -69,11 +69,9 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                   incidentDate: complainData['incident_date'],
                   complainDescription: complainData['complain_description'],
                   complainStatus: complainData['complain_status'],
-                  complainValidation: complainData['complain_validation']
-                      ? "Valid"
-                      : "Invalid",
+                  complainValidation: complainData['complain_validation'],
                   guilty: complainData['guilty'] ? "Guilty" : "Not Guilty",
-                  proctorDecision: complainData['proctor_decision']);
+                  proctorDecision: complainData['proctor_decision']??"");
             }));
             filteredComplainList = complainList;
             isLoading = false;
@@ -210,14 +208,14 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                               vertical: 8, horizontal: 16),
                           child: InkWell(
                             onTap: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => ProctorComplainDescription(
-                              //       complain: complain,
-                              //     ),
-                              //   ),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProctorComplainDetails(
+                                    complain: complain,
+                                  ),
+                                ),
+                              );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
