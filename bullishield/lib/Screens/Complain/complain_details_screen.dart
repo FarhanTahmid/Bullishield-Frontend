@@ -111,7 +111,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(
-            title: const Text('Proof Images'),
+            title: const Text('Image View'),
           ),
           body: PhotoViewGallery.builder(
             itemCount: images.length,

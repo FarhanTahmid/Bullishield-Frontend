@@ -4,6 +4,8 @@ import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -24,6 +26,8 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   TextEditingController proctorDecisionController = TextEditingController();
   String status = "Processing";
   bool isBullyGuilty = false;
+  BackendConfiguration backend = BackendConfiguration();
+
 
   @override
   void initState() {
@@ -101,6 +105,36 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   void callMeeting() {
     // Implement the call meeting logic here
     print('Call Meeting');
+  }
+
+  void showImageViewer(List<String> images, int initialIndex) {
+
+    String backendApiURL=backend.getBackendApiURL();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Image View'),
+          ),
+          body: PhotoViewGallery.builder(
+            itemCount: images.length,
+            builder: (context, index) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage('$backendApiURL${images[index]}'),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 2,
+              );
+            },
+            scrollPhysics: const BouncingScrollPhysics(),
+            backgroundDecoration: const BoxDecoration(
+              color: Colors.black,
+            ),
+            pageController: PageController(initialPage: initialIndex),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -323,56 +357,43 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   }
 
   Widget buildImageCarousel(List<String> images, String emptyText) {
+    String backendApiURL=backend.getBackendApiURL();
     return images.isNotEmpty
         ? Column(
             children: [
-              const Text(
-                "Swipe to view more",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 8),
-              CarouselSlider(
+              CarouselSlider.builder(
                 options: CarouselOptions(
                   height: 200.0,
                   enlargeCenterPage: true,
                   enableInfiniteScroll: false,
                 ),
-                items: images.map((imageUrl) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => FullScreenImage(imageUrl: imageUrl),
-                            ),
-                          );
-                        },
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ?? 1)
-                                    : null,
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
+                itemCount: images.length,
+                itemBuilder: (context, index, realIndex) {
+                  return GestureDetector(
+                    onTap: () => showImageViewer(images, index),
+                    child: Image.network(
+                      '$backendApiURL${images[index]}',
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
                   );
-                }).toList(),
+                },
               ),
             ],
           )
         : Text(emptyText);
   }
+  
 }
 
 class FullScreenImage extends StatelessWidget {
