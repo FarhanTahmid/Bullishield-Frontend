@@ -8,6 +8,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:bullishield/toasts.dart';
 
 class ProctorComplainDetails extends StatefulWidget {
   final ProctorComplain complain;
@@ -24,10 +25,10 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   List<String> proofImages = [];
   List<String> bullyImages = [];
   TextEditingController proctorDecisionController = TextEditingController();
-  String status = "Processing";
+  String status = "";
   bool isBullyGuilty = false;
   BackendConfiguration backend = BackendConfiguration();
-
+  ShowToasts toast = ShowToasts();
 
   @override
   void initState() {
@@ -66,7 +67,8 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
           bullyImages = responseData['bully_images'] != null
               ? List<String>.from(responseData['bully_images'])
               : [];
-          proctorDecisionController.text = responseData['proctor_decision'] ?? "";
+          proctorDecisionController.text =
+              responseData['proctor_decision'] ?? "";
           status = responseData['complain_status'] ?? "Processing";
           isBullyGuilty = responseData['is_bully_guilty'] ?? false;
           isLoading = false;
@@ -97,9 +99,49 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
     );
   }
 
-  void updateComplain() {
-    // Implement the update logic here
-    print('Update Complain');
+  Future<void> updateComplain() async {
+    // get the controller values here
+    setState(() {
+      isLoading = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    BackendConfiguration backend = BackendConfiguration();
+    String backendMeta = backend.getBackendApiURL();
+
+    var updateComplainDetailsURL = "$backendMeta/update_complains/";
+
+    try {
+      final response = await http.post(
+        Uri.parse(updateComplainDetailsURL),
+        body: json.encode({
+          'complain_id': widget.complain.complainId,
+          'proctor_decision': proctorDecisionController.text.trim(),
+          'complain_status': status,
+          'is_bully_guilty': isBullyGuilty,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        // get data from the response
+        var responseData = jsonDecode(response.body);
+        // turning of the loader
+        setState(() {
+          isLoading = false;
+        });
+        // show toast
+        toast.showSuccessToast(responseData['msg']);
+        
+      } else {
+        print("gg");
+      }
+    } catch (error) {
+      print(error);
+    }
   }
 
   void callMeeting() {
@@ -108,8 +150,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   }
 
   void showImageViewer(List<String> images, int initialIndex) {
-
-    String backendApiURL=backend.getBackendApiURL();
+    String backendApiURL = backend.getBackendApiURL();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -156,8 +197,12 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                       children: [
                         buildBooleanField(
                             "Validation",
-                            widget.complain.complainValidation ? "Valid" : "Invalid",
-                            widget.complain.complainValidation ? Colors.green : Colors.red),
+                            widget.complain.complainValidation
+                                ? "Valid"
+                                : "Invalid",
+                            widget.complain.complainValidation
+                                ? Colors.green
+                                : Colors.red),
                         buildBooleanField("Status", status, Colors.blue),
                       ],
                     ),
@@ -167,14 +212,21 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildDetailText("Bully Name: ${widget.complain.bullyName}", isBold: true),
-                        buildDetailText("Bully ID: ${widget.complain.bullyID}", isBold: true),
-                        buildDetailText("Complainer: ${widget.complain.complainer}", isBold: true),
-                        buildDetailText("Incident Date: ${widget.complain.incidentDate}"),
+                        buildDetailText(
+                            "Bully Name: ${widget.complain.bullyName}",
+                            isBold: true),
+                        buildDetailText("Bully ID: ${widget.complain.bullyID}",
+                            isBold: true),
+                        buildDetailText(
+                            "Complainer: ${widget.complain.complainer}",
+                            isBold: true),
+                        buildDetailText(
+                            "Incident Date: ${widget.complain.incidentDate}"),
                         buildDetailText("Type: Complain Type", isBold: true),
                         buildDetailText("Description:", isBold: true),
                         const SizedBox(height: 8),
-                        Text(widget.complain.complainDescription, style: const TextStyle(fontSize: 16)),
+                        Text(widget.complain.complainDescription,
+                            style: const TextStyle(fontSize: 16)),
                       ],
                     ),
                   ),
@@ -184,7 +236,8 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildDetailText("Proof Images:", isBold: true),
-                        buildImageCarousel(proofImages, "No proof images available"),
+                        buildImageCarousel(
+                            proofImages, "No proof images available"),
                       ],
                     ),
                   ),
@@ -194,7 +247,8 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildDetailText("Bully Images:", isBold: true),
-                        buildImageCarousel(bullyImages, "No bully images available"),
+                        buildImageCarousel(
+                            bullyImages, "No bully images available"),
                       ],
                     ),
                   ),
@@ -258,8 +312,11 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                         const SizedBox(height: 8),
                         DropdownButton<String>(
                           value: status,
-                          items: <String>['Processing', 'Validated', 'Completed']
-                              .map((String value) {
+                          items: <String>[
+                            'Processing',
+                            'Validated',
+                            'Completed'
+                          ].map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
@@ -283,7 +340,10 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                         ),
-                        child: const Text('Update Complain'),
+                        child: const Text(
+                          'Update Complain',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       ElevatedButton(
                         onPressed: callMeeting,
@@ -357,7 +417,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   }
 
   Widget buildImageCarousel(List<String> images, String emptyText) {
-    String backendApiURL=backend.getBackendApiURL();
+    String backendApiURL = backend.getBackendApiURL();
     return images.isNotEmpty
         ? Column(
             children: [
@@ -393,7 +453,6 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
           )
         : Text(emptyText);
   }
-  
 }
 
 class FullScreenImage extends StatelessWidget {
