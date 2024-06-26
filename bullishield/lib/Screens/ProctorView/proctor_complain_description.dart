@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
 import 'package:flutter/material.dart';
@@ -135,12 +136,33 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
         });
         // show toast
         toast.showSuccessToast(responseData['msg']);
-        
+      } else if (response.statusCode == 401) {
+        var responseData = jsonDecode(response.body);
+        setState(() {
+          isLoading = false;
+        });
+        // show toast
+        toast.showErrorToast(responseData['msg']);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else if (response.statusCode == 404) {
+        var responseData = jsonDecode(response.body);
+        setState(() {
+          isLoading = false;
+        });
+        // show toast
+        toast.showErrorToast(responseData['msg']);
+        Navigator.pop(context);
       } else {
-        print("gg");
+        setState(() {
+          isLoading = false;
+        });
+        toast.showErrorToast("Internal Server error occured!");
       }
     } catch (error) {
-      print(error);
+        toast.showErrorToast("Something went wrong! Please try again.");
     }
   }
 
@@ -350,7 +372,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                         ),
-                        child: const Text('Call Meeting'),
+                        child: const Text('Call Meeting',style: TextStyle(color: Colors.white),),
                       ),
                     ],
                   ),
