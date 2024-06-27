@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bullishield/Screens/Login/login_screen.dart';
+import 'package:bullishield/Screens/ProctorView/meeting_call_page.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
 import 'package:flutter/material.dart';
@@ -168,7 +169,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
 
   void callMeeting() {
     // Implement the call meeting logic here
-    print('Call Meeting');
+    Navigator.push(context,MaterialPageRoute(builder: (context) => MeetingCallPage(complain: widget.complain,)),);
   }
 
   void showImageViewer(List<String> images, int initialIndex) {
@@ -474,21 +475,5 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
             ],
           )
         : Text(emptyText);
-  }
-}
-
-class FullScreenImage extends StatelessWidget {
-  final String imageUrl;
-
-  const FullScreenImage({super.key, required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Image.network(imageUrl),
-      ),
-    );
   }
 }
