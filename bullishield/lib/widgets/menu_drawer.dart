@@ -1,5 +1,6 @@
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
+import 'package:bullishield/Screens/Profile/user_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -131,13 +132,12 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             ListTile(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) =>
-                //         ProfileScreen(currentUser: widget.currentUser),
-                //   ),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserProfileScreen(),
+                  ),
+                );
               },
               leading: Icon(
                 CupertinoIcons.profile_circled,

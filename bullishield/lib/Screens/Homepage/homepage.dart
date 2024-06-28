@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (query) => filterComplaints(query),
               )
             : const Text(
-                "BulliShield",
+                "Complains",
                 textScaler: TextScaler.linear(1.2),
               ),
         actions: [

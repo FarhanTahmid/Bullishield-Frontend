@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
+import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/toasts.dart';
 import 'package:http/http.dart' as http;
@@ -135,8 +136,13 @@ class MeetingPageState extends State<MeetingCallPage> {
       var responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        // something
-        print("hello");
+        // show toast
+        toast.showSuccessToast(responseData['msg']);
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProctorHomepage()),
+        );
       } else if (response.statusCode == 401) {
         toast.showErrorToast(responseData['msg']);
         Navigator.push(
