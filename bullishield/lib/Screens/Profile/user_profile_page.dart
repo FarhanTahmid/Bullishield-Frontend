@@ -1,3 +1,5 @@
+import 'package:bullishield/backend_config.dart';
+import 'package:bullishield/user_info.dart';
 import 'package:flutter/material.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -9,10 +11,41 @@ class UserProfileScreen extends StatefulWidget {
 
 class UserProfileState extends State<UserProfileScreen> {
   final TextEditingController fullNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController contactNoController = TextEditingController();
   final TextEditingController birthController = TextEditingController();
   final TextEditingController homeAddressController = TextEditingController();
+  String organizationID = '';
+  String gender = '';
+  String userImageUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getUserInfo();
+  }
+
+  Future<void> getUserInfo() async {
+    // function to get user informations and set the fields up
+    UserInfo userInfo = UserInfo();
+    BackendConfiguration backend = BackendConfiguration();
+    String backendApiURL = backend.getBackendApiURL();
+
+    Map<String, dynamic>? userDetails = await userInfo.getUsername();
+    if (userDetails != null) {
+      setState(() {
+        fullNameController.text = userDetails['full_name'] ?? '';
+        organizationID = userDetails['user_id'] ?? '';
+        contactNoController.text = userDetails['contact_no'] ?? '';
+        emailController.text = userDetails['email_address'] ?? '';
+        birthController.text = userDetails['birth_date'] ?? '';
+        homeAddressController.text = userDetails['home_address'] ?? '';
+        gender = userDetails['gender'] ?? '';
+        userImageUrl = userDetails['user_picture'] ?? '';
+        userImageUrl = backendApiURL + userImageUrl;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +61,9 @@ class UserProfileState extends State<UserProfileScreen> {
             children: [
               Stack(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 80,
-                    backgroundImage: AssetImage('assets/ProfilePicture.png'),
+                    backgroundImage: NetworkImage(userImageUrl),
                   ),
                   Positioned(
                     bottom: 0,
@@ -44,14 +77,23 @@ class UserProfileState extends State<UserProfileScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+              Text(
+                "Organization ID: $organizationID",style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight:FontWeight.bold,
+                  color:Colors.black,
+                ),
+              ),
+              
               const SizedBox(height: 16),
-              _buildEditableField('First Name', fullNameController, true),
-              _buildEditableField('Last Name', lastNameController, true),
+              _buildEditableField('Full Name', fullNameController, true),
+              _buildEditableField('Contact No', contactNoController, true),
               _buildEditableField('Email', emailController, true),
               _buildEditableField('Birth Date', birthController, true),
               _buildEditableField('Home Address', homeAddressController, true),
-              _buildEditableField('Organization ID', TextEditingController(text: '123456'), false),
-              _buildEditableField('Gender', TextEditingController(text: 'Male'), false),
+              _buildEditableField(
+                  'Gender', TextEditingController(text: gender), false),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -80,7 +122,8 @@ class UserProfileState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildEditableField(String label, TextEditingController controller, bool isEditable) {
+  Widget _buildEditableField(
+      String label, TextEditingController controller, bool isEditable) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -98,9 +141,12 @@ class UserProfileState extends State<UserProfileScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        final TextEditingController currentPasswordController = TextEditingController();
-        final TextEditingController newPasswordController = TextEditingController();
-        final TextEditingController confirmPasswordController = TextEditingController();
+        final TextEditingController currentPasswordController =
+            TextEditingController();
+        final TextEditingController newPasswordController =
+            TextEditingController();
+        final TextEditingController confirmPasswordController =
+            TextEditingController();
         bool showPassword = false;
 
         return StatefulBuilder(
@@ -117,7 +163,9 @@ class UserProfileState extends State<UserProfileScreen> {
                       labelText: 'Current Password',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          showPassword ? Icons.visibility : Icons.visibility_off,
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -135,7 +183,9 @@ class UserProfileState extends State<UserProfileScreen> {
                       labelText: 'New Password',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          showPassword ? Icons.visibility : Icons.visibility_off,
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -153,7 +203,9 @@ class UserProfileState extends State<UserProfileScreen> {
                       labelText: 'Confirm Password',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          showPassword ? Icons.visibility : Icons.visibility_off,
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
