@@ -29,6 +29,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   TextEditingController proctorDecisionController = TextEditingController();
   String status = "";
   bool isBullyGuilty = false;
+  bool isMeetingScheduled = false;
   BackendConfiguration backend = BackendConfiguration();
   ShowToasts toast = ShowToasts();
 
@@ -73,6 +74,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
               responseData['proctor_decision'] ?? "";
           status = responseData['complain_status'] ?? "Processing";
           isBullyGuilty = responseData['is_bully_guilty'] ?? false;
+          isMeetingScheduled = responseData['is_meeting_scheduled'] ?? false;
           isLoading = false;
         });
       } else {
@@ -163,13 +165,19 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
         toast.showErrorToast("Internal Server error occured!");
       }
     } catch (error) {
-        toast.showErrorToast("Something went wrong! Please try again.");
+      toast.showErrorToast("Something went wrong! Please try again.");
     }
   }
 
   void callMeeting() {
     // Implement the call meeting logic here
-    Navigator.push(context,MaterialPageRoute(builder: (context) => MeetingCallPage(complain: widget.complain,)),);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => MeetingCallPage(
+                complain: widget.complain,
+              )),
+    );
   }
 
   void showImageViewer(List<String> images, int initialIndex) {
@@ -369,11 +377,14 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: callMeeting,
+                        onPressed: isMeetingScheduled ? null : callMeeting,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                         ),
-                        child: const Text('Call Meeting',style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          'Call Meeting',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),

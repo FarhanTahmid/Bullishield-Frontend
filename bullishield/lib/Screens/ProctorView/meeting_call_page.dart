@@ -123,7 +123,9 @@ class MeetingPageState extends State<MeetingCallPage> {
         Uri.parse(meetingTaskURL),
         body: json.encode({
           'task': 'call_meeting',
-          'complain_id': widget.complain.complainId
+          'complain_id': widget.complain.complainId,
+          'meeting_time':'${selectedDate.year}-${selectedDate.month}-${selectedDate.day} ${selectedTime.hour}:${selectedTime.minute}',
+          'meeting_message':meetingMessageController.text,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -154,18 +156,6 @@ class MeetingPageState extends State<MeetingCallPage> {
       Navigator.pop(context);
     }
 
-    // Implement your logic to send the meeting message
-    String mobileNumber = complainerContactNoController.text;
-    String email = complainerEmailController.text;
-    String meetingMessage = meetingMessageController.text;
-    String date = selectedDate.toString();
-    String time = selectedTime.toString();
-    // Print the selected values (Replace with your logic)
-    print('Mobile Number: $mobileNumber');
-    print('Email: $email');
-    print('Meeting Message: $meetingMessage');
-    print('Date: $date');
-    print('Time: $time');
   }
 
   @override
