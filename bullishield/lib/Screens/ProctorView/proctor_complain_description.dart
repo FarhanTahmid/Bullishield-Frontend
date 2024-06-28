@@ -157,6 +157,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
         });
         // show toast
         toast.showErrorToast(responseData['msg']);
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } else {
         setState(() {

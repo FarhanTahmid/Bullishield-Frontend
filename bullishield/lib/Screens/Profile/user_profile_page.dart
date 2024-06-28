@@ -1,6 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/backend_config.dart';
+import 'package:bullishield/toasts.dart';
 import 'package:bullishield/user_info.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -18,6 +26,11 @@ class UserProfileState extends State<UserProfileScreen> {
   String organizationID = '';
   String gender = '';
   String userImageUrl = '';
+  bool isLoading = false;
+
+  UserInfo userInfo = UserInfo();
+  ShowToasts toasts = ShowToasts();
+  BackendConfiguration backend = BackendConfiguration();
 
   @override
   void initState() {
@@ -26,11 +39,12 @@ class UserProfileState extends State<UserProfileScreen> {
   }
 
   Future<void> getUserInfo() async {
-    // function to get user informations and set the fields up
-    UserInfo userInfo = UserInfo();
-    BackendConfiguration backend = BackendConfiguration();
-    String backendApiURL = backend.getBackendApiURL();
+    setState(() {
+      isLoading = true;
+    });
 
+    String backendApiURL = backend.getBackendApiURL();
+    // function to get user informations and set the fields up
     Map<String, dynamic>? userDetails = await userInfo.getUsername();
     if (userDetails != null) {
       setState(() {
@@ -43,7 +57,110 @@ class UserProfileState extends State<UserProfileScreen> {
         gender = userDetails['gender'] ?? '';
         userImageUrl = userDetails['user_picture'] ?? '';
         userImageUrl = backendApiURL + userImageUrl;
+        isLoading = false;
       });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> updateProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    String backendApiURL = backend.getBackendApiURL();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+
+    String userInfoUpdateURL = '$backendApiURL/user/user_profile_update/';
+    try {
+      final response = await http.post(
+        Uri.parse(userInfoUpdateURL),
+        body: json.encode({
+          'full_name':fullNameController.text,
+          'contact_no':contactNoController.text,
+          'email_address':emailController.text,
+          'home_address':homeAddressController.text
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      var responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isLoading = false;
+        });
+        toasts.showSuccessToast(responseData['msg']);
+      } else if (response.statusCode == 401) {
+        setState(() {
+          isLoading = false;
+        });
+        toasts.showErrorToast(responseData['msg']);
+        Navigator.pop(context as BuildContext);
+        Navigator.push(
+          context as BuildContext,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else if (response.statusCode == 404) {
+        setState(() {
+          isLoading = false;
+        });
+        toasts.showErrorToast(responseData['msg']);
+        Navigator.pop(context as BuildContext);
+        Navigator.push(
+          context as BuildContext,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (error, traceback) {
+      setState(() {
+          isLoading = false;
+      });
+      toasts.showErrorToast('Something went wrong! Try again.');
+      Navigator.pop(context as BuildContext);
+      print(error);
+      print(traceback);
+    }
+  }
+
+  Future<void> changeProfilePicture() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        isLoading = true;
+      });
+
+      File imageFile = File(pickedFile.path);
+      String backendApiURL = backend.getBackendApiURL();
+      String uploadURL = '$backendApiURL/upload_profile_picture/';
+
+      var request = http.MultipartRequest('POST', Uri.parse(uploadURL));
+      request.files.add(await http.MultipartFile.fromPath(
+          'picture', imageFile.path,
+          filename: basename(imageFile.path)));
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        String newImageUrl = await response.stream.bytesToString();
+        setState(() {
+          userImageUrl = backendApiURL + newImageUrl;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        // Handle error
+      }
     }
   }
 
@@ -53,71 +170,75 @@ class UserProfileState extends State<UserProfileScreen> {
       appBar: AppBar(
         title: const Text('User Profile'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 80,
-                    backgroundImage: NetworkImage(userImageUrl),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 80,
+                        backgroundImage: NetworkImage(userImageUrl),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: IconButton(
+                          icon: const Icon(Icons.camera_alt),
+                          onPressed: changeProfilePicture,
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: () {
-                        // Add functionality to change profile picture
-                      },
+                  const SizedBox(height: 20),
+                  Text(
+                    "Organization ID: $organizationID",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildEditableField('Full Name', fullNameController, true),
+                  _buildEditableField('Contact No', contactNoController, true),
+                  _buildEditableField('Email', emailController, true),
+                  _buildEditableField(
+                      'Home Address', homeAddressController, true),
+                  _buildEditableField(
+                      'Gender', TextEditingController(text: gender), false),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: updateProfile,
+                    child: const Text('Update Profile'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      _showChangePasswordDialog(context);
+                    },
+                    child: const Text('Change Password'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      // Add functionality to logout
+                    },
+                    child: const Text('Logout'),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Text(
-                "Organization ID: $organizationID",style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight:FontWeight.bold,
-                  color:Colors.black,
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              _buildEditableField('Full Name', fullNameController, true),
-              _buildEditableField('Contact No', contactNoController, true),
-              _buildEditableField('Email', emailController, true),
-              _buildEditableField('Birth Date', birthController, true),
-              _buildEditableField('Home Address', homeAddressController, true),
-              _buildEditableField(
-                  'Gender', TextEditingController(text: gender), false),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Add functionality to update profile
-                },
-                child: const Text('Update Profile'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  _showChangePasswordDialog(context);
-                },
-                child: const Text('Change Password'),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  // Add functionality to logout
-                },
-                child: const Text('Logout'),
-              ),
-            ],
+            ),
           ),
-        ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }
