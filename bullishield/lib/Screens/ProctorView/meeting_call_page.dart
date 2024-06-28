@@ -110,7 +110,50 @@ class MeetingPageState extends State<MeetingCallPage> {
     }
   }
 
-  void sendMeetingMessage() {
+  Future<void> scheduleMeeting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    BackendConfiguration backend = BackendConfiguration();
+    String backendMeta = backend.getBackendApiURL();
+
+    var meetingTaskURL = '$backendMeta/meeting/';
+
+    try {
+      final response = await http.post(
+        Uri.parse(meetingTaskURL),
+        body: json.encode({
+          'task': 'call_meeting',
+          'complain_id': widget.complain.complainId
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      var responseData = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        // something
+        print("hello");
+      } else if (response.statusCode == 401) {
+        toast.showErrorToast(responseData['msg']);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else if (response.statusCode == 404) {
+        toast.showErrorToast(responseData['msg']);
+        Navigator.pop(context);
+      } else {
+        toast.showErrorToast("Internal server error occured!");
+      }
+    } catch (error, traceback) {
+      print(error);
+      print(traceback);
+      toast.showErrorToast("Something went wrong! Please try again");
+      Navigator.pop(context);
+    }
+
     // Implement your logic to send the meeting message
     String mobileNumber = complainerContactNoController.text;
     String email = complainerEmailController.text;
@@ -244,7 +287,7 @@ class MeetingPageState extends State<MeetingCallPage> {
               const SizedBox(height: 16),
               Center(
                 child: ElevatedButton(
-                  onPressed: sendMeetingMessage,
+                  onPressed: scheduleMeeting,
                   child: const Text('Schedule Meeting'),
                 ),
               ),
