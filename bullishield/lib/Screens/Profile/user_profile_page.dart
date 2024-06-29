@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/toasts.dart';
 import 'package:bullishield/user_info.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -23,6 +24,12 @@ class UserProfileState extends State<UserProfileScreen> {
   final TextEditingController contactNoController = TextEditingController();
   final TextEditingController birthController = TextEditingController();
   final TextEditingController homeAddressController = TextEditingController();
+  final TextEditingController currentPasswordController =
+      TextEditingController();
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
   String organizationID = '';
   String gender = '';
   String userImageUrl = '';
@@ -66,7 +73,7 @@ class UserProfileState extends State<UserProfileScreen> {
     }
   }
 
-  Future<void> updateProfile() async {
+  Future<void> updateProfile(BuildContext context) async {
     setState(() {
       isLoading = true;
     });
@@ -95,6 +102,7 @@ class UserProfileState extends State<UserProfileScreen> {
       if (response.statusCode == 200) {
         setState(() {
           isLoading = false;
+          getUserInfo();
         });
         toasts.showSuccessToast(responseData['msg']);
       } else if (response.statusCode == 401) {
@@ -102,9 +110,9 @@ class UserProfileState extends State<UserProfileScreen> {
           isLoading = false;
         });
         toasts.showErrorToast(responseData['msg']);
-        Navigator.pop(context as BuildContext);
+        Navigator.pop(context);
         Navigator.push(
-          context as BuildContext,
+          context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       } else if (response.statusCode == 404) {
@@ -112,9 +120,9 @@ class UserProfileState extends State<UserProfileScreen> {
           isLoading = false;
         });
         toasts.showErrorToast(responseData['msg']);
-        Navigator.pop(context as BuildContext);
+        Navigator.pop(context);
         Navigator.push(
-          context as BuildContext,
+          context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
@@ -123,7 +131,7 @@ class UserProfileState extends State<UserProfileScreen> {
         isLoading = false;
       });
       toasts.showErrorToast('Something went wrong! Try again.');
-      Navigator.pop(context as BuildContext);
+      Navigator.pop(context);
       print(error);
       print(traceback);
     }
@@ -168,6 +176,61 @@ class UserProfileState extends State<UserProfileScreen> {
         });
         // Handle error
       }
+    }
+  }
+
+  Future<void> changePassword(BuildContext context) async {
+    print("hello");
+    setState(() {
+      isLoading = true;
+    });
+    String backendApiURL = backend.getBackendApiURL();
+    String passwordChangeURL = '$backendApiURL/user/change_user_pass/';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+
+    //  if new pass and confirm pass matches
+    if (newPasswordController.text == confirmPasswordController.text) {
+      try {
+        final response = await http.post(
+          Uri.parse(passwordChangeURL),
+          body: json.encode({
+            'current_password': currentPasswordController.text,
+            'new_password': newPasswordController.text,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        var responseData = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          toasts.showSuccessToast(responseData['msg']);
+          await prefs.remove('access_token');
+          await prefs.remove('username');
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+
+        } else if (response.statusCode == 401) {
+          toasts.showErrorToast(responseData['msg']);
+        } else {
+          toasts.showErrorToast(
+              "Internal server error occured! Please try again.");
+        }
+      } catch (error, traceback) {
+        print(error);
+        print(traceback);
+        toasts.showErrorToast("Something went wrong! Please try again.");
+      }
+    } else {
+      toasts.showErrorToast("Two passwords did not match! Try again");
     }
   }
 
@@ -219,24 +282,24 @@ class UserProfileState extends State<UserProfileScreen> {
                   _buildEditableField(
                       'Gender', TextEditingController(text: gender), false),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: updateProfile,
-                    child: const Text('Update Profile'),
-                  ),
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                          updateProfile(context);
+                        },
+                        child: const Text('Update Profile'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showChangePasswordDialog(context);
+                        },
+                        child: const Text('Change Password'),
+                      ),
+                    ],
+                  ),                  
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showChangePasswordDialog(context);
-                    },
-                    child: const Text('Change Password'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      // Add functionality to logout
-                    },
-                    child: const Text('Logout'),
-                  ),
                 ],
               ),
             ),
@@ -269,12 +332,6 @@ class UserProfileState extends State<UserProfileScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        final TextEditingController currentPasswordController =
-            TextEditingController();
-        final TextEditingController newPasswordController =
-            TextEditingController();
-        final TextEditingController confirmPasswordController =
-            TextEditingController();
         bool showPassword = false;
 
         return StatefulBuilder(
@@ -354,7 +411,7 @@ class UserProfileState extends State<UserProfileScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Add functionality to update password
+                    changePassword(context);
                   },
                   child: const Text('Update Password'),
                 ),

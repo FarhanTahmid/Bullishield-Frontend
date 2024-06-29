@@ -132,6 +132,7 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             ListTile(
               onTap: () {
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -247,6 +248,7 @@ class MyDrawerState extends State<MyDrawer> {
                 //     );
                 //   }
                 // }
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
