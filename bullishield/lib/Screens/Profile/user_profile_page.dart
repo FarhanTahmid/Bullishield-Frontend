@@ -80,10 +80,10 @@ class UserProfileState extends State<UserProfileScreen> {
       final response = await http.post(
         Uri.parse(userInfoUpdateURL),
         body: json.encode({
-          'full_name':fullNameController.text,
-          'contact_no':contactNoController.text,
-          'email_address':emailController.text,
-          'home_address':homeAddressController.text
+          'full_name': fullNameController.text,
+          'contact_no': contactNoController.text,
+          'email_address': emailController.text,
+          'home_address': homeAddressController.text
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ class UserProfileState extends State<UserProfileScreen> {
       }
     } catch (error, traceback) {
       setState(() {
-          isLoading = false;
+        isLoading = false;
       });
       toasts.showErrorToast('Something went wrong! Try again.');
       Navigator.pop(context as BuildContext);
@@ -140,17 +140,24 @@ class UserProfileState extends State<UserProfileScreen> {
 
       File imageFile = File(pickedFile.path);
       String backendApiURL = backend.getBackendApiURL();
-      String uploadURL = '$backendApiURL/upload_profile_picture/';
+      String uploadURL = '$backendApiURL/user/upload_profile_picture/';
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
 
       var request = http.MultipartRequest('POST', Uri.parse(uploadURL));
       request.files.add(await http.MultipartFile.fromPath(
           'picture', imageFile.path,
           filename: basename(imageFile.path)));
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
 
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        String newImageUrl = await response.stream.bytesToString();
+        var responseBody = await response.stream.bytesToString();
+        var responseData = json.decode(responseBody);
+        String newImageUrl = responseData['new_picture'];
         setState(() {
           userImageUrl = backendApiURL + newImageUrl;
           isLoading = false;
