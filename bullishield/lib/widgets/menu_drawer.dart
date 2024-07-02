@@ -1,3 +1,4 @@
+import 'package:bullishield/Screens/Meeting%20Schedules/user_schedules.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
 import 'package:bullishield/Screens/Profile/user_profile_page.dart';
@@ -154,12 +155,12 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => NotificationScreen(),
-                //   ),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserSchedules(),
+                  ),
+                );
               },
               child: ListTile(
                 leading: Icon(
@@ -167,7 +168,7 @@ class MyDrawerState extends State<MyDrawer> {
                   color: Colors.purple.shade900,
                 ),
                 title: Text(
-                  "Notifications",
+                  "Meeting Schedules",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
                     color: Colors.purple.shade900,
