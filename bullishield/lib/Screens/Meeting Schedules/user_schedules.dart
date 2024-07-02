@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class UserSchedules extends StatefulWidget {
   const UserSchedules({super.key});
@@ -27,6 +28,45 @@ class UserSchedulesState extends State<UserSchedules> {
   void initState() {
     super.initState();
     fetchComplaints();
+  }
+
+  String meetingStatus(String dateTimeStr) {
+    String meetingStatus = "";
+
+    // Parse the input dateTime string to a DateTime object
+    DateTime meetingDateTime = DateTime.parse(dateTimeStr);
+
+    // Get the current date and time
+    DateTime now = DateTime.now();
+
+    // Check the meeting status based on the date and time
+    if (meetingDateTime.isBefore(now)) {
+      meetingStatus = "Over";
+    } else if (meetingDateTime.year == now.year &&
+        meetingDateTime.month == now.month &&
+        meetingDateTime.day == now.day) {
+      meetingStatus = "Today";
+    } else {
+      meetingStatus = "Upcoming";
+    }
+
+    return meetingStatus;
+  }
+
+  String dateFormatter(String dateTime) {
+    // Parse the input dateTime string to a DateTime object
+    DateTime parsedDateTime = DateTime.parse(dateTime);
+
+    // Format the date part
+    String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDateTime);
+
+    // Format the time part in 12-hour format
+    String formattedTime = DateFormat('h:mm a').format(parsedDateTime);
+
+    // Combine the formatted date and time
+    String result = '$formattedDate, Time $formattedTime';
+
+    return result;
   }
 
   Future<void> fetchComplaints() async {
@@ -55,13 +95,14 @@ class UserSchedulesState extends State<UserSchedules> {
         if (responseBody.isNotEmpty) {
           var responseData = jsonDecode(responseBody);
           setState(() {
-            meetingList = List<ScheduledMeetings>.from(responseData['sceduled_meetings'].map((meetingData) {
+            meetingList = List<ScheduledMeetings>.from(
+                responseData['sceduled_meetings'].map((meetingData) {
               return ScheduledMeetings(
                 complainID: meetingData['complain_id_id'].toString(),
                 description: "Tap to view complain details",
-                scheduledTime: meetingData['meeting_time'],
+                scheduledTime: dateFormatter(meetingData['meeting_time']),
                 meetingMessage: meetingData['meeting_message'],
-                status: "Upcoming",
+                status: meetingStatus(meetingData['meeting_time']),
               );
             }));
             filteredMeetingList = meetingList;
@@ -116,7 +157,15 @@ class UserSchedulesState extends State<UserSchedules> {
     }
 
     setState(() {
-      meetingList = filteredList;
+      filteredMeetingList = filteredList;
+    });
+  }
+
+  void filterByStatus(String status) {
+    setState(() {
+      filteredMeetingList = meetingList
+          .where((meeting) => meeting.status.toLowerCase() == status.toLowerCase())
+          .toList();
     });
   }
 
@@ -155,13 +204,30 @@ class UserSchedulesState extends State<UserSchedules> {
                     });
                   },
                 )
-              : IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      isSearching = true;
-                    });
-                  },
+              : Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.search),
+                      onPressed: () {
+                        setState(() {
+                          isSearching = true;
+                        });
+                      },
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: filterByStatus,
+                      itemBuilder: (BuildContext context) {
+                        return {'Today', 'Upcoming', 'Over'}
+                            .map((String choice) {
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Text(choice),
+                          );
+                        }).toList();
+                      },
+                      icon: const Icon(Icons.filter_list),
+                    ),
+                  ],
                 ),
         ],
       ),
@@ -176,7 +242,8 @@ class UserSchedulesState extends State<UserSchedules> {
                         ScheduledMeetings meetings = filteredMeetingList[index];
                         return Card(
                           elevation: 2,
-                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 16),
                           child: InkWell(
                             onTap: () {
                               // Navigator.push(
@@ -193,11 +260,19 @@ class UserSchedulesState extends State<UserSchedules> {
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text("Complain ID: ${meetings.complainID}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        Text(
+                                            "Complain ID: ${meetings.complainID}",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold)),
                                         const SizedBox(height: 8),
-                                        Text("Scheduled on: ${meetings.scheduledTime}", style: const TextStyle(fontSize: 16)),
+                                        Text(
+                                            "Scheduled on: ${meetings.scheduledTime}",
+                                            style:
+                                                const TextStyle(fontSize: 16)),
                                         const SizedBox(height: 8),
                                         Text(
                                           "Complain Details: ${meetings.description}",
@@ -213,7 +288,10 @@ class UserSchedulesState extends State<UserSchedules> {
                                     children: [
                                       Text(
                                         meetings.status,
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue),
                                       ),
                                     ],
                                   ),
@@ -229,4 +307,20 @@ class UserSchedulesState extends State<UserSchedules> {
       drawer: const MyDrawer(),
     );
   }
+}
+
+class ScheduledMeetings {
+  final String complainID;
+  final String description;
+  final String scheduledTime;
+  final String meetingMessage;
+  final String status;
+
+  ScheduledMeetings({
+    required this.complainID,
+    required this.description,
+    required this.scheduledTime,
+    required this.meetingMessage,
+    required this.status,
+  });
 }

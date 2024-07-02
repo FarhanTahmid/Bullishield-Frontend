@@ -1,3 +1,4 @@
+import 'package:bullishield/Screens/Homepage/homepage.dart';
 import 'package:bullishield/Screens/Meeting%20Schedules/user_schedules.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
@@ -118,6 +119,12 @@ class MyDrawerState extends State<MyDrawer> {
             ListTile(
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
               },
               leading: Icon(
                 CupertinoIcons.house_fill,
