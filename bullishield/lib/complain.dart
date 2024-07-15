@@ -12,4 +12,15 @@ class Complain {
     required this.complainDescription,
     required this.complainStatus,
   });
+
+  factory Complain.fromJson(Map<String, dynamic> json) {
+    return Complain(
+      complain_id: json['id'],
+      bullyName: json['bully_name'],
+      incidentDate: json['incident_date'],
+      complainDescription: json['complain_description'],
+      complainStatus: json['complain_status'],
+    );
+  }
+  
 }

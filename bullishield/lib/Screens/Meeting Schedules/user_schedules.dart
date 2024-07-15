@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bullishield/Screens/Complain/complain_details_screen.dart';
 import 'package:bullishield/Screens/Meeting%20Schedules/meeting_schedules.dart';
+import 'package:bullishield/complain.dart';
 import 'package:flutter/material.dart';
 import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/widgets/menu_drawer.dart';
@@ -20,6 +21,7 @@ class UserSchedules extends StatefulWidget {
 class UserSchedulesState extends State<UserSchedules> {
   List<ScheduledMeetings> meetingList = [];
   List<ScheduledMeetings> filteredMeetingList = [];
+  List<Complain> complainList = [];
   bool isLoading = true;
   bool isSearching = false;
   TextEditingController searchController = TextEditingController();
@@ -105,6 +107,10 @@ class UserSchedulesState extends State<UserSchedules> {
                 status: meetingStatus(meetingData['meeting_time']),
               );
             }));
+            complainList = List<Complain>.from(
+                responseData['complain_details'].map((complainData) {
+              return Complain.fromJson(complainData);
+            }));
             filteredMeetingList = meetingList;
             isLoading = false;
           });
@@ -123,8 +129,9 @@ class UserSchedulesState extends State<UserSchedules> {
           isLoading = false;
         });
       }
-    } catch (error) {
+    } catch (error, trace) {
       print('Error fetching complaints: $error');
+      print('Error fetching complaints: $trace');
       showErrorToast('Failed to fetch complaints');
       setState(() {
         isLoading = false;
@@ -164,7 +171,8 @@ class UserSchedulesState extends State<UserSchedules> {
   void filterByStatus(String status) {
     setState(() {
       filteredMeetingList = meetingList
-          .where((meeting) => meeting.status.toLowerCase() == status.toLowerCase())
+          .where(
+              (meeting) => meeting.status.toLowerCase() == status.toLowerCase())
           .toList();
     });
   }
@@ -239,6 +247,11 @@ class UserSchedulesState extends State<UserSchedules> {
                   ? ListView.builder(
                       itemCount: filteredMeetingList.length,
                       itemBuilder: (context, index) {
+                        // Ensure index is within range for both lists
+                        if (index >= complainList.length || index >= filteredMeetingList.length) {
+                          return const SizedBox.shrink(); // Or any other placeholder widget
+                        }
+                        Complain complain = complainList[index];
                         ScheduledMeetings meetings = filteredMeetingList[index];
                         return Card(
                           elevation: 2,
@@ -246,12 +259,12 @@ class UserSchedulesState extends State<UserSchedules> {
                               vertical: 8, horizontal: 16),
                           child: InkWell(
                             onTap: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => ComplainDetailsScreen(complain: complain),
-                              //   ),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ComplainDetailsScreen(complain: complain),
+                                ),
+                              );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
