@@ -190,7 +190,7 @@ class MyDrawerState extends State<MyDrawer> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ChatBotScreen(),
+                    builder: (context) => ChatBotScreen(userImageURL: userImageUrl,),
                   ),
                 );
               },
