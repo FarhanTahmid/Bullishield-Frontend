@@ -1,3 +1,4 @@
+import 'package:bullishield/Screens/Chatbot/ChatBotScreen.dart';
 import 'package:bullishield/Screens/Homepage/homepage.dart';
 import 'package:bullishield/Screens/Meeting%20Schedules/user_schedules.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
@@ -185,12 +186,13 @@ class MyDrawerState extends State<MyDrawer> {
             ),
             GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => ChatBotScreen(),
-                //   ),
-                // );
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatBotScreen(),
+                  ),
+                );
               },
               child: ListTile(
                 leading: Icon(
@@ -198,7 +200,7 @@ class MyDrawerState extends State<MyDrawer> {
                   color: Colors.purple.shade900,
                 ),
                 title: Text(
-                  "Talk to ChatBot",
+                  "Bullishield Bot",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
                     color: Colors.purple.shade900,
