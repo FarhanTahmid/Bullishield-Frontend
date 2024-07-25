@@ -140,10 +140,11 @@ class ProctorHomepageState extends State<ProctorHomepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: kPrimaryColor,
         title: isSearching
             ? TextField(
                 controller: searchController,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: "Search...",
                   hintStyle: TextStyle(color: Colors.grey),
@@ -151,14 +152,14 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                 ),
                 onChanged: (query) => filterComplaints(query),
               )
-            : Text(
+            : Text(style: const TextStyle(color: Colors.white),
                 organizationName,
-                textScaler: const TextScaler.linear(1.2),
+                textScaler: const TextScaler.linear(1),
               ),
         actions: [
           isSearching
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear,color: Colors.white,),
                   onPressed: () {
                     setState(() {
                       isSearching = false;
@@ -168,7 +169,7 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                   },
                 )
               : IconButton(
-                  icon: const Icon(Icons.search),
+                  icon: const Icon(Icons.search,color: Colors.white,),
                   onPressed: () {
                     setState(() {
                       isSearching = true;
@@ -176,6 +177,7 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                   },
                 ),
           PopupMenuButton<String>(
+            iconColor: Colors.white,
             onSelected: (String value) {
               setState(() {
                 selectedStatus = value;

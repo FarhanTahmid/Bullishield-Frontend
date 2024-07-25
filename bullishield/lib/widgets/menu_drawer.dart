@@ -4,6 +4,7 @@ import 'package:bullishield/Screens/Meeting%20Schedules/user_schedules.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
 import 'package:bullishield/Screens/Profile/user_profile_page.dart';
+import 'package:bullishield/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,19 +102,20 @@ class MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Colors.purple.shade100,
+        color: kPrimaryColor,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.purpleAccent),
-              margin: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
+              decoration: const BoxDecoration(color: Colors.deepPurple),
+              margin: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(),
+              
               child: UserAccountsDrawerHeader(
+                accountEmail: Text(username),
                 accountName: Text(userFullName),
-                accountEmail: Text(email),
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: NetworkImage(userImageUrl),
+                  backgroundImage: NetworkImage(userImageUrl,scale: 2),
                 ),
               ),
             ),
@@ -127,15 +129,15 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              leading: Icon(
+              leading: const Icon(
                 CupertinoIcons.house_fill,
-                color: Colors.purple.shade900,
+                color: Colors.white,
               ),
-              title: Text(
+              title: const Text(
                 "Home",
-                textScaler: const TextScaler.linear(1.2),
+                textScaler: TextScaler.linear(1.2),
                 style: TextStyle(
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -149,15 +151,15 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              leading: Icon(
+              leading: const Icon(
                 CupertinoIcons.profile_circled,
-                color: Colors.purple.shade900,
+                color: Colors.white,
               ),
-              title: Text(
+              title: const Text(
                 "Profile",
                 textScaler: const TextScaler.linear(1.2),
                 style: TextStyle(
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -170,16 +172,16 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              child: ListTile(
+              child: const ListTile(
                 leading: Icon(
                   CupertinoIcons.bell_circle_fill,
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
                 title: Text(
                   "Meeting Schedules",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
-                    color: Colors.purple.shade900,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -194,16 +196,16 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              child: ListTile(
+              child: const ListTile(
                 leading: Icon(
                   CupertinoIcons.chat_bubble_2_fill,
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
                 title: Text(
                   "Bullishield Bot",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
-                    color: Colors.purple.shade900,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -218,16 +220,16 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              child: ListTile(
+              child: const ListTile(
                 leading: Icon(
                   CupertinoIcons.add_circled_solid,
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
                 title: Text(
                   "Add New Complain",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
-                    color: Colors.purple.shade900,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -266,16 +268,16 @@ class MyDrawerState extends State<MyDrawer> {
                   ),
                 );
               },
-              child: ListTile(
+              child: const ListTile(
                 leading: Icon(
                   CupertinoIcons.person_crop_rectangle,
-                  color: Colors.purple.shade900,
+                  color: Colors.white
                 ),
                 title: Text(
                   "Proctor page",
                   textScaler: const TextScaler.linear(1.2),
                   style: TextStyle(
-                    color: Colors.purple.shade900,
+                    color: Colors.white
                   ),
                 ),
               ),
@@ -284,16 +286,16 @@ class MyDrawerState extends State<MyDrawer> {
               onTap: () {
                 _showLogoutDialog(context);
               },
-              child: ListTile(
+              child: const ListTile(
                 leading: Icon(
                   CupertinoIcons.greaterthan_circle_fill,
-                  color: Colors.purple.shade900,
+                  color: Colors.white,
                 ),
                 title: Text(
                   "Logout",
-                  textScaler: const TextScaler.linear(1.2),
+                  textScaler: TextScaler.linear(1.2),
                   style: TextStyle(
-                    color: Colors.purple.shade900,
+                    color: Colors.white,
                   ),
                 ),
               ),

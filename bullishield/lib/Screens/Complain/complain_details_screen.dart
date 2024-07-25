@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/complain.dart';
+import 'package:bullishield/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -111,7 +112,8 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(
-            title: const Text('Image View'),
+            title: const Text('Image View',style: TextStyle(color: Colors.white),),
+            backgroundColor: kPrimaryColor,
           ),
           body: PhotoViewGallery.builder(
             itemCount: images.length,
@@ -137,7 +139,8 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Complain Details"),
+        title: const Text("Complain Details",style: TextStyle(color: Colors.white)),
+        backgroundColor: kPrimaryColor,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

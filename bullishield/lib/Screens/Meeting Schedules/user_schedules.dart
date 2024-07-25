@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bullishield/Screens/Complain/complain_details_screen.dart';
 import 'package:bullishield/Screens/Meeting%20Schedules/meeting_schedules.dart';
 import 'package:bullishield/complain.dart';
+import 'package:bullishield/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/widgets/menu_drawer.dart';
@@ -188,22 +189,23 @@ class UserSchedulesState extends State<UserSchedules> {
         title: isSearching
             ? TextField(
                 controller: searchController,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: "Search meetings...",
-                  hintStyle: TextStyle(color: Colors.black),
+                  hintStyle: TextStyle(color: Colors.white),
                   border: InputBorder.none,
                 ),
                 onChanged: (query) => filterMeetingList(query),
               )
             : const Text(
-                "Meeting Schedules",
-                textScaler: TextScaler.linear(1.2),
+                "Meeting Schedules",style: TextStyle(color: Colors.white),
+                textScaler: TextScaler.linear(1),
               ),
+              backgroundColor: kPrimaryColor,
         actions: [
           isSearching
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear,color: Colors.white,),
                   onPressed: () {
                     setState(() {
                       isSearching = false;
@@ -215,7 +217,7 @@ class UserSchedulesState extends State<UserSchedules> {
               : Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.search),
+                      icon: const Icon(Icons.search,color: Colors.white,),
                       onPressed: () {
                         setState(() {
                           isSearching = true;
@@ -224,6 +226,7 @@ class UserSchedulesState extends State<UserSchedules> {
                     ),
                     PopupMenuButton<String>(
                       onSelected: filterByStatus,
+                      iconColor: Colors.white,
                       itemBuilder: (BuildContext context) {
                         return {'Today', 'Upcoming', 'Over'}
                             .map((String choice) {

@@ -5,6 +5,7 @@ import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_homepage.dart';
 import 'package:bullishield/backend_config.dart';
+import 'package:bullishield/constants.dart';
 import 'package:bullishield/toasts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -168,7 +169,8 @@ class MeetingPageState extends State<MeetingCallPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Schedule Meeting'),
+        backgroundColor: kPrimaryColor,
+        title: const Text('Schedule Meeting',style: TextStyle(color: Colors.white),),
       ),
       body: SingleChildScrollView(
         child: Padding(

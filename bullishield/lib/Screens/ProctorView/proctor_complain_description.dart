@@ -3,6 +3,8 @@ import 'package:bullishield/Screens/Login/login_screen.dart';
 import 'package:bullishield/Screens/ProctorView/meeting_call_page.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:bullishield/Screens/ProctorView/proctor_complain.dart';
+import 'package:bullishield/constants.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -214,7 +216,8 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Complain ID - ${widget.complain.complainId}"),
+        backgroundColor: kPrimaryColor,
+        title: Text("Complain ID - ${widget.complain.complainId}",style: const TextStyle(color: Colors.white),),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

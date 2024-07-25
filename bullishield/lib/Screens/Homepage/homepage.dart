@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bullishield/Screens/Complain/complain_details_screen.dart';
+import 'package:bullishield/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:bullishield/Screens/NavScreen/ComplainFormScreen.dart';
 import 'package:bullishield/Screens/Login/login_screen.dart';
@@ -129,13 +130,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: kPrimaryColor,
         title: isSearching
             ? TextField(
                 controller: searchController,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: "Search complaints...",
-                  hintStyle: TextStyle(color: Colors.black),
+                  hintStyle: TextStyle(color: Colors.white),
                   border: InputBorder.none,
                 ),
                 onChanged: (query) => filterComplaints(query),
@@ -143,11 +145,12 @@ class _HomePageState extends State<HomePage> {
             : const Text(
                 "Complains",
                 textScaler: TextScaler.linear(1.2),
+                style: TextStyle(color: Colors.white),
               ),
         actions: [
           isSearching
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear,color: Colors.white,),
                   onPressed: () {
                     setState(() {
                       isSearching = false;
@@ -157,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 )
               : IconButton(
-                  icon: const Icon(Icons.search),
+                  icon: const Icon(Icons.search,color: Colors.white,),
                   onPressed: () {
                     setState(() {
                       isSearching = true;
@@ -229,6 +232,8 @@ class _HomePageState extends State<HomePage> {
             ),
       drawer: const MyDrawer(),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: kPrimaryColor,
+        focusColor: Colors.purpleAccent,
         onPressed: () {
           Navigator.push(
             context,
@@ -237,7 +242,7 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add,color: Colors.white,),
       ),
     );
   }

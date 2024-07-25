@@ -1,3 +1,4 @@
+import 'package:bullishield/constants.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -9,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -237,8 +237,10 @@ class UserProfileState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kPrimaryColor,
       appBar: AppBar(
-        title: const Text('User Profile'),
+        title: const Text('User Profile',style: TextStyle(color: Colors.white),),
+        backgroundColor: kPrimaryColor,
       ),
       body: Stack(
         children: [
@@ -258,7 +260,7 @@ class UserProfileState extends State<UserProfileScreen> {
                         bottom: 0,
                         right: 0,
                         child: IconButton(
-                          icon: const Icon(Icons.camera_alt),
+                          icon: const Icon(Icons.camera_alt,color: Colors.white),
                           onPressed: changeProfilePicture,
                         ),
                       ),
@@ -269,8 +271,7 @@ class UserProfileState extends State<UserProfileScreen> {
                     "Organization ID: $organizationID",
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -318,11 +319,13 @@ class UserProfileState extends State<UserProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
+        style: const TextStyle(color: Colors.white),
         controller: controller,
         enabled: isEditable,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(color: Colors.white),
+          border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
         ),
       ),
     );
