@@ -28,6 +28,7 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
   bool isLoading = true;
   List<String> proofImages = [];
   List<String> bullyImages = [];
+  List<String> flaggedImages = [];
   TextEditingController proctorDecisionController = TextEditingController();
   String status = "";
   bool isBullyGuilty = false;
@@ -71,6 +72,9 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
               : [];
           bullyImages = responseData['bully_images'] != null
               ? List<String>.from(responseData['bully_images'])
+              : [];
+          flaggedImages = responseData['flagged_images'] != null
+              ? List<String>.from(responseData['flagged_images'])
               : [];
           proctorDecisionController.text =
               responseData['proctor_decision'] ?? "";
@@ -217,7 +221,10 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kPrimaryColor,
-        title: Text("Complain ID - ${widget.complain.complainId}",style: const TextStyle(color: Colors.white),),
+        title: Text(
+          "Complain ID - ${widget.complain.complainId}",
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -284,6 +291,17 @@ class _ProctorComplainDetailsState extends State<ProctorComplainDetails> {
                         buildDetailText("Bully Images:", isBold: true),
                         buildImageCarousel(
                             bullyImages, "No bully images available"),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  buildBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildDetailText("Flagged Images:", isBold: true),
+                        buildImageCarousel(
+                            flaggedImages, "No flagged images available"),
                       ],
                     ),
                   ),

@@ -100,7 +100,8 @@ class ComplainFormState extends State<ComplainForm> {
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
 
-    final response = await http.get(Uri.parse('$backendMeta/get_complain_type/'));
+    final response =
+        await http.get(Uri.parse('$backendMeta/get_complain_type/'));
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       jsonResponse['types'].forEach((key, value) {
@@ -126,7 +127,8 @@ class ComplainFormState extends State<ComplainForm> {
     return harassmentTypes;
   }
 
-  void complainRegistration(String bullyName, String bullyId, String incidentDate, String description, String? harassmentType) async {
+  void complainRegistration(String bullyName, String bullyId,
+      String incidentDate, String description, String? harassmentType) async {
     BackendConfiguration backend = BackendConfiguration();
     String backendMeta = backend.getBackendApiURL();
     String postComplainUrl = '$backendMeta/register_complain/';
@@ -194,7 +196,9 @@ class ComplainFormState extends State<ComplainForm> {
               content: Text(responseData['msg']),
             ));
           }
-        }else if(response.statusCode==403){
+          // get off from the page
+          Navigator.pop(context);
+        } else if (response.statusCode == 403) {
           if (Platform.isAndroid) {
             Fluttertoast.showToast(
               msg: responseData['msg'],
@@ -210,7 +214,7 @@ class ComplainFormState extends State<ComplainForm> {
               content: Text(responseData['msg']),
             ));
           }
-        }else if(response.statusCode==424){
+        } else if (response.statusCode == 424) {
           if (Platform.isAndroid) {
             Fluttertoast.showToast(
               msg: responseData['msg'],
@@ -226,8 +230,7 @@ class ComplainFormState extends State<ComplainForm> {
               content: Text(responseData['msg']),
             ));
           }
-        } 
-        else {
+        } else {
           if (Platform.isAndroid) {
             Fluttertoast.showToast(
               msg: "Something went wrong! Please try again later.",
@@ -257,7 +260,8 @@ class ComplainFormState extends State<ComplainForm> {
           );
         } else if (Platform.isWindows) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Please check your internet connection and try again!"),
+            content:
+                Text("Please check your internet connection and try again!"),
           ));
         }
       }
@@ -292,8 +296,7 @@ class ComplainFormState extends State<ComplainForm> {
 
   Future<void> fetchHarassmentTypes() async {
     try {
-      setState(() {
-      });
+      setState(() {});
     } catch (e) {
       print('Error: $e');
     }

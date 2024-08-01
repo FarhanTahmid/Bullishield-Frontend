@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullishield/backend_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bullishield/complain.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -150,7 +151,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           isSearching
               ? IconButton(
-                  icon: const Icon(Icons.clear,color: Colors.white,),
+                  icon: const Icon(Icons.clear, color: Colors.white),
                   onPressed: () {
                     setState(() {
                       isSearching = false;
@@ -160,13 +161,17 @@ class _HomePageState extends State<HomePage> {
                   },
                 )
               : IconButton(
-                  icon: const Icon(Icons.search,color: Colors.white,),
+                  icon: const Icon(Icons.search, color: Colors.white),
                   onPressed: () {
                     setState(() {
                       isSearching = true;
                     });
                   },
                 ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _refreshList,
+          ),
         ],
       ),
       body: isLoading
@@ -242,7 +247,7 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
-        child: const Icon(Icons.add,color: Colors.white,),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

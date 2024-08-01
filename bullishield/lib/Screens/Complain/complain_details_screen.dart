@@ -73,7 +73,7 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
               : [];
           bullyID = responseData['bully_id'] ?? "";
           organizationName = responseData['organization_name'] ?? "";
-          complainValidation = responseData['complain_validation'] ?? false;
+          complainValidation = responseData['complain_cyberBullying_flag_validation'] ?? false;
           complainType = responseData['complain_type'] ?? "";
           proctorDecision = responseData['proctor_decision'] ?? "";
           isBullyGuilty = responseData['is_bully_guilty'] ?? false;
@@ -154,8 +154,8 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         buildBooleanField("Validation",
-                            complainValidation ? "Valid Bullying" : "Invalid Complain",
-                            complainValidation ? Colors.green : Colors.red),
+                            complainValidation ? "Flagged Bullying" : "Invalid Complain",
+                            complainValidation ? Colors.red : Colors.green),
                         buildBooleanField("Status", widget.complain.complainStatus,
                             Colors.blue),
                         buildBooleanField("Bully Guilty?",

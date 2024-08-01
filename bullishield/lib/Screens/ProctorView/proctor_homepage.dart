@@ -69,7 +69,7 @@ class ProctorHomepageState extends State<ProctorHomepage> {
                   incidentDate: complainData['incident_date'],
                   complainDescription: complainData['complain_description'],
                   complainStatus: complainData['complain_status'],
-                  complainValidation: complainData['complain_validation'],
+                  complainValidation: complainData['complain_cyberBullying_flag_validation'],
                   guilty: complainData['guilty'] ? "Guilty" : "Not Guilty",
                   proctorDecision: complainData['proctor_decision']??"");
             }));
